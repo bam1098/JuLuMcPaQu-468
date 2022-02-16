@@ -54,3 +54,5 @@ In a new terminal window, start the backend server
   cd backend/
   node server.js
 ```
+
+Navigate to `http://localhost:3000/` in your browser of choice
