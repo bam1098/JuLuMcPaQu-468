@@ -47,13 +47,13 @@ export default function ActiveGame({ socket }) {
 
 	const sendChat = (e) => {
 		e.preventDefault();
-		// TODO
+		console.log("Todo: send chat");
 	};
 
 	return (
 		<>
 			<div className="parent-container">
-				{gameEnded && (
+				{gameEnded ? (
 					<div className="info-container">
 						{console.log(endResult)}
 						<h2>
@@ -67,6 +67,8 @@ export default function ActiveGame({ socket }) {
 								: "Better luck next time!"}
 						</h3>
 					</div>
+				) : (
+					<div style={{ width: "33%" }}></div>
 				)}
 				<div className="board-container">
 					<Board socket={socket} roomId={params.id} user={user} />
