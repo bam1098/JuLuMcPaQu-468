@@ -45,25 +45,44 @@ export default function ActiveGame({ socket }) {
 		setEndResult(result);
 	});
 
+	const sendChat = (e) => {
+		e.preventDefault();
+		// TODO
+	};
+
 	return (
 		<>
-			{gameEnded && (
-				<div className="info-container">
-					{console.log(endResult)}
-					<h2>
-						{endResult.winner === undefined
-							? "The game has ended in a draw!"
-							: `${endResult.winner} has won the game!`}
-					</h2>
-					<h3>
-						{endResult.draw === false && endResult.winner === user.username
-							? "Congratulations!"
-							: "Better luck next time!"}
-					</h3>
+			<div className="parent-container">
+				{gameEnded && (
+					<div className="info-container">
+						{console.log(endResult)}
+						<h2>
+							{endResult.winner === undefined
+								? "The game has ended in a draw!"
+								: `${endResult.winner} has won the game!`}
+						</h2>
+						<h3>
+							{endResult.draw === false && endResult.winner === user.username
+								? "Congratulations!"
+								: "Better luck next time!"}
+						</h3>
+					</div>
+				)}
+				<div className="board-container">
+					<Board socket={socket} roomId={params.id} user={user} />
 				</div>
-			)}
-			<div className="board-container">
-				<Board socket={socket} roomId={params.id} user={user} />
+				<div className="chat-container">
+					<div className="chat">
+						<div className="chat-header">
+							<p>Chat</p>
+						</div>
+						<div className="chat-body">{/* TODO */}</div>
+						<form onSubmit={sendChat}>
+							<input type="text" />
+							<button type="submit">Send</button>
+						</form>
+					</div>
+				</div>
 			</div>
 		</>
 	);

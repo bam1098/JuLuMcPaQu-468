@@ -1,8 +1,58 @@
+.parent-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.info-container {
+	width: 33%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+}
+
 .board-container {
-	width: 100%;
+	width: 33%;
 	height: calc(100vh - 4rem);
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+}
+
+.chat-container {
+	width: 33%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.chat {
+	width: 300px;
+}
+
+.chat-header {
+	background-color: whitesmoke;
+	border-radius: 10px 10px 0 0;
+	border-bottom: rgb(182, 173, 182) solid 1px;
+}
+
+.chat-header p {
+	margin: 0;
+	padding: 0.5rem;
+}
+
+.chat-body {
+	background-color: whitesmoke;
+	height: 300px;
+}
+
+.chat form {
+	background-color: whitesmoke;
+}
+
+.chat form input {
+	width: 88%;
 }
