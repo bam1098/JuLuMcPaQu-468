@@ -7,6 +7,8 @@ import jwt_decode from "jwt-decode";
 export default function ActiveGame({ socket }) {
 	const params = useParams();
 	const navigate = useNavigate();
+	const [gameEnded, setGameEnded] = useState(false);
+	const [endResult, setEndResult] = useState({});
 	if (!localStorage.getItem("authToken")) {
 		navigate("/signup");
 		return;
@@ -37,9 +39,32 @@ export default function ActiveGame({ socket }) {
 		return;
 	});
 
+	socket.on("endGame", (result) => {
+		console.log(result.winner);
+		setGameEnded(true);
+		setEndResult(result);
+	});
+
 	return (
-		<div className="board-container">
-			<Board socket={socket} roomId={params.id} user={user} />
-		</div>
+		<>
+			{gameEnded && (
+				<div className="info-container">
+					{console.log(endResult)}
+					<h2>
+						{endResult.winner === undefined
+							? "The game has ended in a draw!"
+							: `${endResult.winner} has won the game!`}
+					</h2>
+					<h3>
+						{endResult.draw === false && endResult.winner === user.username
+							? "Congratulations!"
+							: "Better luck next time!"}
+					</h3>
+				</div>
+			)}
+			<div className="board-container">
+				<Board socket={socket} roomId={params.id} user={user} />
+			</div>
+		</>
 	);
 }

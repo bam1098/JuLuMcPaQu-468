@@ -82,6 +82,7 @@ export default function Board({ socket, roomId, user }) {
 		) {
 			payload = {
 				game: gameState,
+				roomId,
 				draw: true,
 				playerOne: user.username,
 				playerTwo: opponent,
@@ -106,6 +107,7 @@ export default function Board({ socket, roomId, user }) {
 			}
 			payload = {
 				game: gameState,
+				roomId,
 				draw: false,
 				winner,
 				loser,
