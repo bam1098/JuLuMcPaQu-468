@@ -23,7 +23,7 @@ Clone the project
 Go to the project directory
 
 ```bash
-  cd csc468cloud
+  cd JuLuMcPaQu-468
 ```
 
 Install dependencies
