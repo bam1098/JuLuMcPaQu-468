@@ -174,7 +174,7 @@ io.on("connection", (socket) => {
 			} else if (result.playerTwo === "Computer") {
 				human = result.playerOne;
 			}
-			if (human === null) {
+			if (human !== null) {
 				try {
 					await axios.post(
 						"http://localhost:5000/user/edit",

@@ -110,8 +110,8 @@ export default function Board({ socket, roomId, user }) {
 				winner,
 				loser,
 			};
-			socket.emit("gameOver", payload);
 		}
+		socket.emit("gameOver", payload);
 	}
 
 	function onDrop(sourceSquare, targetSquare) {
