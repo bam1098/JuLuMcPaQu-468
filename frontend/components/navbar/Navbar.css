@@ -1,69 +1,16 @@
 nav {
-	height: 4rem;
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
-	padding: 0 2rem;
-	background-color: whitesmoke;
-}
-
-nav ul {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	width: 10rem;
 }
 
 nav a {
-	color: #000;
 	text-decoration: none;
 }
 
-.user-button {
-	-webkit-user-drag: none;
-	box-sizing: border-box;
-	cursor: pointer;
-	display: inline-block;
-	line-height: normal;
-	user-select: none;
-	vertical-align: middle;
-	background-color: #e6e6e6;
-	border: transparent;
-	border-radius: 2px;
-	color: rgba(0, 0, 0, 0.8);
-	font-size: 100%;
-	padding: 0.5em 1em;
-	text-decoration: none;
-	margin-right: 4rem;
-}
-
-.button-clicked {
-	background-color: #c0bebe;
-}
-
-.user-icon {
-	vertical-align: text-top;
-}
-
-.user-menu {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	position: absolute;
-	top: 4rem;
-	right: 0;
-	width: 20rem;
-	background-color: whitesmoke;
-	border-radius: 0 0 10px 10px;
-}
-
-.user-menu a,
-.user-menu p {
-	margin: 0.75rem 0;
-	text-align: center;
+.nav-container {
 	width: 100%;
-	cursor: pointer;
+}
+
+.user-button:hover {
+	background-color: rgb(248, 249, 250);
 }

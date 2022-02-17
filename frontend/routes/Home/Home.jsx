@@ -1,12 +1,15 @@
 import "./Home.css";
+import { Text } from "@mantine/core";
 
 function Home() {
 	return (
 		<div className="App">
-			<h1>Chess Game</h1>
-			<p>
+			<Text component="h1" size={20}>
+				Chess Game
+			</Text>
+			<Text>
 				Edit this page at: <code>frontend/routes/Home/Home.jsx</code>
-			</p>
+			</Text>
 		</div>
 	);
 }

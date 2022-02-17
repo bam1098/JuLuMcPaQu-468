@@ -15,7 +15,6 @@ export default function App() {
 	const socket = io(endpoint);
 	return (
 		<>
-			<Navbar socket={socket} />
 			<Routes>
 				<Route exact path="/" element={<Home socket={socket} />} />
 				<Route exact path="/login" element={<Login />} />

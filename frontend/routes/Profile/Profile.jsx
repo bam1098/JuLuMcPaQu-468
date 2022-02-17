@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Text } from "@mantine/core";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
 
@@ -40,26 +41,26 @@ export default function Profile() {
 	const matchHistory =
 		user.matchHistory && user.matchHistory.length ? (
 			user.matchHistory.map((match) => {
-				<p>Match example</p>;
+				<Text>Match example</Text>;
 			})
 		) : (
-			<p>No match history</p>
+			<Text>No match history</Text>
 		);
 
 	return (
 		<div className="profile-container">
 			<div className="profile-header">
-				<h1>{user.username}</h1>
-				<p>{user.email}</p>
+				<Text>{user.username}</Text>
+				<Text>{user.email}</Text>
 			</div>
 			<div className="profile-body">
 				<div className="profile-body-left">
-					<p>Wins: {user.wins}</p>
-					<p>Losses: {user.losses}</p>
-					<p>Draws: {user.draws}</p>
+					<Text>Wins: {user.wins}</Text>
+					<Text>Losses: {user.losses}</Text>
+					<Text>Draws: {user.draws}</Text>
 				</div>
 				<div className="profile-body-right">
-					<p>Match history:</p>
+					<Text>Match history:</Text>
 					{matchHistory}
 				</div>
 			</div>
