@@ -1,6 +1,5 @@
 import Home from "./routes/Home/";
 import Login from "./routes/Login/";
-import Navbar from "./components/navbar/";
 import Register from "./routes/Signup/";
 import Profile from "./routes/Profile/";
 import CreateGame from "./routes/Game/CreateGame";
@@ -9,10 +8,10 @@ import ActiveGame from "./routes/Game/";
 import { Routes, Route } from "react-router-dom";
 import io from "socket.io-client";
 
-export default function App() {
-	const endpoint = "http://localhost:5000";
+const endpoint = "http://localhost:5000";
+const socket = io(endpoint);
 
-	const socket = io(endpoint);
+export default function App() {
 	return (
 		<>
 			<Routes>

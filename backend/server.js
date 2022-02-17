@@ -31,6 +31,7 @@ http.listen(port, () => {
 let games = {};
 let searchingPlayers = [];
 io.on("connection", (socket) => {
+	console.log("New user connected");
 	socket.on("createRoom", (settings) => {
 		if (socket.rooms.size >= 2) {
 			socket.emit("roomRedirect", Array.from(socket.rooms)[1]);

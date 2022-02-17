@@ -82,7 +82,9 @@ export default function NewNav() {
 											smallerThan="lg"
 											styles={{ display: "none" }}
 										>
-											<Text fontSize="lg">Play chess</Text>
+											<Text component="p" size="xl">
+												Play chess
+											</Text>
 										</MediaQuery>
 									</Group>
 								</UnstyledButton>
@@ -101,7 +103,9 @@ export default function NewNav() {
 												smallerThan="lg"
 												styles={{ display: "none" }}
 											>
-												<Text fontSize="lg">Logout</Text>
+												<Text component="p" size="xl">
+													Logout
+												</Text>
 											</MediaQuery>
 										</Group>
 									</UnstyledButton>
@@ -159,7 +163,9 @@ export default function NewNav() {
 														smallerThan="lg"
 														styles={{ display: "none" }}
 													>
-														<Text>{username}</Text>
+														<Text component="p" size="xl">
+															{username}
+														</Text>
 													</MediaQuery>
 												</div>
 											</Group>

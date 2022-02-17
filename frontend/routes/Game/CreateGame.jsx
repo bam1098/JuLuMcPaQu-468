@@ -87,6 +87,10 @@ export default function CreateGame({ socket }) {
 								{ value: 3, label: "Hard" },
 								{ value: 4, label: "Expert" },
 							]}
+							transition="scale-y"
+							transitionDuration={120}
+							transitionTimingFunction="ease"
+							required
 						/>
 					)}
 					<Button

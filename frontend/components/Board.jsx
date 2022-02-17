@@ -1,5 +1,5 @@
 import { Chess } from "chess.js";
-import { Avatar, Group } from "@mantine/core";
+import { Avatar, Group, Text } from "@mantine/core";
 import { Chessboard } from "react-chessboard";
 import { useState } from "react";
 import { aiMove } from "js-chess-engine";
@@ -201,7 +201,9 @@ export default function Board({ socket, roomId, user }) {
 					<Avatar color="blue" size="md">
 						{opponent.charAt(0)}
 					</Avatar>
-					<p>{opponent}</p>
+					<Text component="p" size="xl">
+						{opponent}
+					</Text>
 				</Group>
 			</div>
 			<Chessboard
@@ -228,7 +230,9 @@ export default function Board({ socket, roomId, user }) {
 					<Avatar color="blue" size="md">
 						{user["username"].charAt(0)}
 					</Avatar>
-					<p>{user["username"]}</p>
+					<Text component="p" size="xl">
+						{user["username"]}
+					</Text>
 				</Group>
 			</div>
 		</>

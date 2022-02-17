@@ -1,5 +1,5 @@
 import "./ActiveGame.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
 	Button,
@@ -8,6 +8,7 @@ import {
 	Group,
 	ScrollArea,
 	TextInput,
+	Text,
 } from "@mantine/core";
 import Board from "../../components/Board";
 import jwt_decode from "jwt-decode";
@@ -25,6 +26,13 @@ export default function ActiveGame({ socket }) {
 	const [user, setUser] = useState(
 		jwt_decode(localStorage.getItem("authToken"))
 	);
+
+	const chatViewport = useRef();
+	const scrollToBottom = () =>
+		chatViewport.current.scrollTo({
+			top: chatViewport.current.scrollHeight,
+			behavior: "smooth",
+		});
 
 	useEffect(() => {
 		socket.emit("joinRoom", {
@@ -52,13 +60,11 @@ export default function ActiveGame({ socket }) {
 			setEndResult(result);
 		});
 
-		socket.on("receiveMessage", (chatMessage) => appendChat(chatMessage));
+		socket.on("receiveMessage", (chatMessage) => {
+			setChatMessages((previousMessages) => [...previousMessages, chatMessage]);
+			scrollToBottom();
+		});
 	}, []);
-
-	const appendChat = (chatMessage) => {
-		console.log(chatMessage);
-		setChatMessages([...chatMessages, chatMessage]);
-	};
 
 	const sendChat = (e) => {
 		e.preventDefault();
@@ -74,17 +80,25 @@ export default function ActiveGame({ socket }) {
 		e.target.elements.message.focus();
 	};
 
+	const renderChat = () => {
+		return chatMessages.map((message, index) => (
+			<p key={index}>
+				{message.sender}: <span>{message.message}</span>
+			</p>
+		));
+	};
+
 	return (
 		<>
 			<div className="parent-container">
 				{gameEnded ? (
 					<div className="info-container">
 						{console.log(endResult)}
-						<h2>
+						<Text component="h2" size="xl">
 							{endResult.winner === undefined
 								? "The game has ended in a draw!"
 								: `${endResult.winner} has won the game!`}
-						</h2>
+						</Text>
 						<h3>
 							{endResult.draw === false && endResult.winner === user.username
 								? "Congratulations!"
@@ -101,14 +115,8 @@ export default function ActiveGame({ socket }) {
 					<h2>Chat</h2>
 					<Divider />
 					<form onSubmit={sendChat}>
-						<ScrollArea style={{ height: "250px" }}>
-							{chatMessages.map((message, i) => {
-								return (
-									<p key={i}>
-										{message.sender}: {message.message}
-									</p>
-								);
-							})}
+						<ScrollArea style={{ height: "250px" }} viewportRef={chatViewport}>
+							{renderChat()}
 						</ScrollArea>
 						<Divider />
 						<Group spacing="xs" noWrap style={{ marginTop: "1rem" }}>
