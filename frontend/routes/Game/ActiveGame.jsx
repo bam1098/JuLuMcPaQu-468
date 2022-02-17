@@ -6,6 +6,7 @@ import {
 	Card,
 	Divider,
 	Group,
+	Modal,
 	ScrollArea,
 	TextInput,
 	Text,
@@ -91,23 +92,18 @@ export default function ActiveGame({ socket }) {
 	return (
 		<>
 			<div className="parent-container">
-				{gameEnded ? (
-					<div className="info-container">
-						{console.log(endResult)}
-						<Text component="h2" size="xl">
-							{endResult.winner === undefined
-								? "The game has ended in a draw!"
-								: `${endResult.winner} has won the game!`}
-						</Text>
-						<h3>
-							{endResult.draw === false && endResult.winner === user.username
-								? "Congratulations!"
-								: "Better luck next time!"}
-						</h3>
-					</div>
-				) : (
-					<div></div>
-				)}
+				<Modal opened={gameEnded} onClose={() => setGameEnded(false)} centered>
+					<Text component="h2" size="xl">
+						{endResult.winner === undefined
+							? "The game has ended in a draw!"
+							: `${endResult.winner} has won the game!`}
+					</Text>
+					<Text component="h3" size="lg">
+						{endResult.draw === false && endResult.winner === user.username
+							? "Congratulations!"
+							: "Better luck next time!"}
+					</Text>
+				</Modal>
 				<div className="board-container">
 					<Board socket={socket} roomId={params.id} user={user} />
 				</div>

@@ -247,6 +247,7 @@ io.on("connection", (socket) => {
 				}
 			}
 		}
+		io.to(result.roomId).emit("endGame", result);
 	});
 
 	socket.on("sendMessage", (chatMessage) => {
