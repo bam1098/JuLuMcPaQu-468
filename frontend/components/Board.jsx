@@ -166,7 +166,6 @@ export default function Board({ socket, roomId, user }) {
 		}
 		setFen(game.fen());
 		if (game.game_over()) {
-			console.log("here comp");
 			handleGameOver();
 		}
 	}

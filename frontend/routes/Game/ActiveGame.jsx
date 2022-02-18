@@ -56,7 +56,6 @@ export default function ActiveGame({ socket }) {
 		});
 
 		socket.on("endGame", (result) => {
-			console.log(result.winner);
 			setGameEnded(true);
 			setEndResult(result);
 		});
@@ -94,7 +93,12 @@ export default function ActiveGame({ socket }) {
 	return (
 		<>
 			<div className="parent-container">
-				<Modal opened={gameEnded} onClose={() => setGameEnded(false)} centered>
+				<Modal
+					opened={gameEnded}
+					onClose={() => setGameEnded(false)}
+					centered
+					hideCloseButton
+				>
 					<Text component="h2" size="xl">
 						{endResult.winner === undefined
 							? "The game has ended in a draw!"

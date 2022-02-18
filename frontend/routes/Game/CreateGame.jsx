@@ -63,7 +63,6 @@ export default function CreateGame({ socket }) {
 					Create game
 				</Text>
 				<Divider />
-				{findingOpponent && <p>Finding opponent...</p>}
 				<Modal
 					opened={findingOpponent}
 					onClose={() => cancelSearch()}
@@ -83,64 +82,66 @@ export default function CreateGame({ socket }) {
 						</Button>
 					</Group>
 				</Modal>
-				<form onSubmit={createRoom}>
-					<Group direction="column">
-						<SegmentedControl
-							value={gameType}
-							onChange={setGameType}
-							data={[
-								{ label: "Public", value: "public" },
-								{ label: "Private", value: "private" },
-							]}
-						/>
-						{gameType === "private" && (
-							<>
-								<SegmentedControl
-									value={color}
-									onChange={setColor}
-									data={[
-										{ label: "White", value: "white" },
-										{ label: "Black", value: "black" },
-										{ label: "Random", value: "random" },
-									]}
-								/>
-								<SegmentedControl
-									value={opponent}
-									onChange={setOpponent}
-									data={[
-										{ label: "Real player", value: "player" },
-										{ label: "Computer", value: "computer" },
-									]}
-								/>
-							</>
-						)}
-						{opponent === "computer" && (
-							<Select
-								placeholder="Choose difficulty"
-								value={difficulty}
-								onChange={setDifficulty}
+				<Group direction="row" position="center">
+					<form onSubmit={createRoom}>
+						<Group direction="row">
+							<SegmentedControl
+								value={gameType}
+								onChange={setGameType}
 								data={[
-									{ value: 0, label: "Beginner" },
-									{ value: 1, label: "Easy" },
-									{ value: 2, label: "Medium" },
-									{ value: 3, label: "Hard" },
-									{ value: 4, label: "Expert" },
+									{ label: "Public", value: "public" },
+									{ label: "Private", value: "private" },
 								]}
-								transition="scale-y"
-								transitionDuration={120}
-								transitionTimingFunction="ease"
-								required
 							/>
-						)}
-						<Button
-							type="submit"
-							variant="gradient"
-							gradient={{ from: "indigo", to: "cyan" }}
-						>
-							{gameType === "public" ? "Find match" : "Create room"}
-						</Button>
-					</Group>
-				</form>
+							{gameType === "private" && (
+								<>
+									<SegmentedControl
+										value={color}
+										onChange={setColor}
+										data={[
+											{ label: "White", value: "white" },
+											{ label: "Black", value: "black" },
+											{ label: "Random", value: "random" },
+										]}
+									/>
+									<SegmentedControl
+										value={opponent}
+										onChange={setOpponent}
+										data={[
+											{ label: "Real player", value: "player" },
+											{ label: "Computer", value: "computer" },
+										]}
+									/>
+								</>
+							)}
+							{opponent === "computer" && gameType === "private" && (
+								<Select
+									placeholder="Choose difficulty"
+									value={difficulty}
+									onChange={setDifficulty}
+									data={[
+										{ value: 0, label: "Beginner" },
+										{ value: 1, label: "Easy" },
+										{ value: 2, label: "Medium" },
+										{ value: 3, label: "Hard" },
+										{ value: 4, label: "Expert" },
+									]}
+									transition="scale-y"
+									transitionDuration={120}
+									transitionTimingFunction="ease"
+									required
+								/>
+							)}
+							<Button
+								type="submit"
+								variant="gradient"
+								gradient={{ from: "indigo", to: "cyan" }}
+							>
+								{gameType === "public" ? "Find match" : "Create room"}
+							</Button>
+						</Group>
+					</form>
+				</Group>
 			</Card>
 		</div>
 	);
