@@ -14,7 +14,7 @@ import {
 	Text,
 	UnstyledButton,
 } from "@mantine/core";
-import { useLocalStorageValue } from "@mantine/hooks";
+import { useLocalStorageValue, useMediaQuery } from "@mantine/hooks";
 import { Link } from "react-router-dom";
 import { BsChevronRight } from "react-icons/bs";
 import { FaChessQueen } from "react-icons/fa";
@@ -33,6 +33,8 @@ export default function NewNav() {
 		setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
 	const [username, setUsername] = useState("");
 	const dark = colorScheme === "dark";
+	const largerThanSM = useMediaQuery("(min-width: 768px)");
+	const smallerThanLG = useMediaQuery("(max-width: 1200px)");
 
 	useEffect(() => {
 		if (localStorage.getItem("authToken")) {
@@ -56,13 +58,32 @@ export default function NewNav() {
 							padding="md"
 							hiddenBreakpoint="sm"
 							hidden={!opened}
-							width={{ sm: 300, lg: 400 }}
+							width={{ sm: 75, md: 150, lg: 400 }}
 						>
-							<Navbar.Section mt="lg" grow style={{ width: "100%" }}>
+							<Navbar.Section
+								mt="lg"
+								grow
+								style={{
+									width: "100%",
+									display: "flex",
+									flexDirection: "column",
+									justifyContent: "space-evenly",
+								}}
+							>
 								<UnstyledButton component={Link} to="/game/create">
-									<Group>
-										<FaChessQueen color={"#228be6"} />
-										<Text fontSize="lg">Play chess</Text>
+									<Group position="center">
+										<FaChessQueen
+											color={"#228be6"}
+											className="icon"
+											title="Play chess"
+										/>
+										<MediaQuery
+											largerThan="sm"
+											smallerThan="lg"
+											styles={{ display: "none" }}
+										>
+											<Text fontSize="lg">Play chess</Text>
+										</MediaQuery>
 									</Group>
 								</UnstyledButton>
 								{username !== "" && (
@@ -73,9 +94,15 @@ export default function NewNav() {
 											window.location = "/";
 										}}
 									>
-										<Group>
-											<FiLogOut color={"#228be6"} />
-											<Text fontSize="lg">Logout</Text>
+										<Group position="center">
+											<FiLogOut color={"#228be6"} className="icon" />
+											<MediaQuery
+												largerThan="sm"
+												smallerThan="lg"
+												styles={{ display: "none" }}
+											>
+												<Text fontSize="lg">Logout</Text>
+											</MediaQuery>
 										</Group>
 									</UnstyledButton>
 								)}
@@ -117,16 +144,33 @@ export default function NewNav() {
 										to={`/profile/${username}`}
 										style={{ width: "100%" }}
 									>
-										<Group position="apart">
+										{console.log(largerThanSM && smallerThanLG)}
+										<Group
+											position={`${
+												largerThanSM && smallerThanLG ? "center" : "apart"
+											}`}
+										>
 											<Group>
 												<Avatar color="blue" size="lg">
 													{username.charAt(0)}
 												</Avatar>
 												<div>
-													<Text>{username}</Text>
+													<MediaQuery
+														largerThan="sm"
+														smallerThan="lg"
+														styles={{ display: "none" }}
+													>
+														<Text>{username}</Text>
+													</MediaQuery>
 												</div>
 											</Group>
-											<BsChevronRight />
+											<MediaQuery
+												largerThan="sm"
+												smallerThan="lg"
+												styles={{ display: "none" }}
+											>
+												<BsChevronRight />
+											</MediaQuery>
 										</Group>
 									</UnstyledButton>
 								)}

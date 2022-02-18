@@ -214,7 +214,7 @@ export default function Board({ socket, roomId, user }) {
 					...optionSquares,
 					...rightClickedSquares,
 				}}
-				boardWidth={600}
+				boardWidth={500}
 			/>
 			<p>{user["username"]}</p>
 		</>

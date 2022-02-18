@@ -68,7 +68,7 @@ export default function ActiveGame({ socket }) {
 						</h3>
 					</div>
 				) : (
-					<div style={{ width: "33%" }}></div>
+					<div></div>
 				)}
 				<div className="board-container">
 					<Board socket={socket} roomId={params.id} user={user} />

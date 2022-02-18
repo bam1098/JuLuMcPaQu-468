@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+	Button,
+	Card,
+	Group,
+	TextInput,
+	PasswordInput,
+	Text,
+} from "@mantine/core";
 import axios from "axios";
 
 export default function Signup() {
@@ -43,40 +51,55 @@ export default function Signup() {
 	};
 	return (
 		<div className="container">
-			<div className="form-container">
+			<Card className="card" shadow="md" padding="lg">
 				<div className="form-header">
-					<h1>Chess Game</h1>
-					<p>Signup</p>
+					<h2>Signup</h2>
 				</div>
 				{error && <div className="error">{error}</div>}
 				<form method="POST" onSubmit={handleSubmit}>
-					<label htmlFor="username">Username</label>
-					<input
-						type="text"
-						name="username"
+					<TextInput
 						value={username}
+						label="Username"
+						placeholder="Your username"
+						name="username"
+						required
+						error={error}
 						onChange={(e) => setUsername(e.target.value)}
 					/>
-					<label htmlFor="email">Email</label>
-					<input
+					<TextInput
 						type="email"
-						name="email"
 						value={email}
+						label="Email"
+						placeholder="example@test.com"
+						name="email"
+						required
+						error={error}
 						onChange={(e) => setEmail(e.target.value)}
 					/>
-					<label htmlFor="password">Password</label>
-					<input
-						type="password"
-						name="password"
-						value={password}
+					<PasswordInput
+						label="Password"
+						placeholder="Your password"
+						required
+						error={error}
 						onChange={(e) => setPassword(e.target.value)}
 					/>
-					<button type="submit">Sign up</button>
-					<span>
-						Already have an account? <Link to="/login">Login</Link>
-					</span>
+					<Group className="submit-group" position="apart">
+						<Button
+							type="submit"
+							variant="gradient"
+							gradient={{ from: "indigo", to: "cyan" }}
+						>
+							Sign up
+						</Button>
+						<Text size="xs" color="dimmed">
+							Already have an account?{" "}
+							<Text size="xs" color="#4DABF7" component={Link} to="/login">
+								Log in
+							</Text>
+						</Text>
+					</Group>
 				</form>
-			</div>
+			</Card>
 			<div className="media"></div>
 		</div>
 	);

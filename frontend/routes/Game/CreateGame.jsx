@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button, Card, Group, SegmentedControl, Select } from "@mantine/core";
 import jwt_decode from "jwt-decode";
 
 export default function CreateGame({ socket }) {
@@ -40,40 +41,63 @@ export default function CreateGame({ socket }) {
 	});
 
 	return (
-		<div>
+		<Card>
 			<h2>Create game</h2>
 			{findingOpponent && <p>Finding opponent...</p>}
 			<form onSubmit={createRoom}>
-				<select onChange={(e) => setGameType(e.target.value)}>
-					<option value="public">Public</option>
-					<option value="private">Private</option>
-				</select>
-				{gameType === "private" && (
-					<>
-						<select onChange={(e) => setColor(e.target.value)}>
-							<option value="white">White</option>
-							<option value="black">Black</option>
-							<option value="random">Random</option>
-						</select>
-						<select onChange={(e) => setOpponent(e.target.value)}>
-							<option value="player">Real player</option>
-							<option value="computer">Computer</option>
-						</select>
-					</>
-				)}
-				{opponent === "computer" && (
-					<select onChange={(e) => setDifficulty(e.target.value)}>
-						<option value={0}>Beginner</option>
-						<option value={1}>Easy</option>
-						<option value={2}>Medium</option>
-						<option value={3}>Hard</option>
-						<option value={4}>Expert</option>
-					</select>
-				)}
-				<button type="submit">
-					{gameType === "public" ? "Find match" : "Create room"}
-				</button>
+				<Group direction="column">
+					<SegmentedControl
+						value={gameType}
+						onChange={setGameType}
+						data={[
+							{ label: "Public", value: "public" },
+							{ label: "Private", value: "private" },
+						]}
+					/>
+					{gameType === "private" && (
+						<>
+							<SegmentedControl
+								value={color}
+								onChange={setColor}
+								data={[
+									{ label: "White", value: "white" },
+									{ label: "Black", value: "black" },
+									{ label: "Random", value: "random" },
+								]}
+							/>
+							<SegmentedControl
+								value={opponent}
+								onChange={setOpponent}
+								data={[
+									{ label: "Real player", value: "player" },
+									{ label: "Computer", value: "computer" },
+								]}
+							/>
+						</>
+					)}
+					{opponent === "computer" && (
+						<Select
+							placeholder="Choose difficulty"
+							value={difficulty}
+							onChange={setDifficulty}
+							data={[
+								{ value: 0, label: "Beginner" },
+								{ value: 1, label: "Easy" },
+								{ value: 2, label: "Medium" },
+								{ value: 3, label: "Hard" },
+								{ value: 4, label: "Expert" },
+							]}
+						/>
+					)}
+					<Button
+						type="submit"
+						variant="gradient"
+						gradient={{ from: "indigo", to: "cyan" }}
+					>
+						{gameType === "public" ? "Find match" : "Create room"}
+					</Button>
+				</Group>
 			</form>
-		</div>
+		</Card>
 	);
 }

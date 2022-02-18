@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+	Button,
+	Card,
+	Group,
+	TextInput,
+	PasswordInput,
+	Text,
+} from "@mantine/core";
 import axios from "axios";
+import "./login.css";
 
 export default function Login() {
 	let navigate = useNavigate();
@@ -43,33 +52,45 @@ export default function Login() {
 	};
 	return (
 		<div className="container">
-			<div className="form-container">
+			<Card className="card" shadow="md" padding="lg">
 				<div className="form-header">
-					<h1>Chess Game</h1>
-					<p>Log in</p>
+					<h2>Log in</h2>
 				</div>
-				{error && <div className="error">{error}</div>}
 				<form method="POST" onSubmit={handleSubmit}>
-					<label htmlFor="email">Email</label>
-					<input
+					<TextInput
 						type="email"
-						name="email"
 						value={email}
+						label="Email"
+						placeholder="example@test.com"
+						name="email"
+						required
+						error={error}
 						onChange={(e) => setEmail(e.target.value)}
 					/>
-					<label htmlFor="password">Password</label>
-					<input
-						type="password"
-						name="password"
-						value={password}
+					<PasswordInput
+						label="Password"
+						placeholder="Your password"
+						required
+						error={error}
 						onChange={(e) => setPassword(e.target.value)}
 					/>
-					<button type="submit">Sign up</button>
-					<span>
-						Don't have an account? <Link to="/signup">Sign up</Link>
-					</span>
+					<Group className="submit-group" position="apart">
+						<Button
+							type="submit"
+							variant="gradient"
+							gradient={{ from: "indigo", to: "cyan" }}
+						>
+							Log in
+						</Button>
+						<Text size="xs" color="dimmed">
+							Don't have an account?{" "}
+							<Text size="xs" color="#4DABF7" component={Link} to="/signup">
+								Sign up
+							</Text>
+						</Text>
+					</Group>
 				</form>
-			</div>
+			</Card>
 			<div className="media"></div>
 		</div>
 	);
