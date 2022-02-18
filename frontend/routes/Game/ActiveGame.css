@@ -20,30 +20,6 @@
 	align-items: center;
 }
 
-.chat {
+.chat-card {
 	width: 300px;
-}
-
-.chat-header {
-	background-color: whitesmoke;
-	border-radius: 10px 10px 0 0;
-	border-bottom: rgb(182, 173, 182) solid 1px;
-}
-
-.chat-header p {
-	margin: 0;
-	padding: 0.5rem;
-}
-
-.chat-body {
-	background-color: whitesmoke;
-	height: 300px;
-}
-
-.chat form {
-	background-color: whitesmoke;
-}
-
-.chat form input {
-	width: 88%;
 }

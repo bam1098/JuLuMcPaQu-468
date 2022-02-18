@@ -58,7 +58,7 @@ export default function NewNav() {
 							padding="md"
 							hiddenBreakpoint="sm"
 							hidden={!opened}
-							width={{ sm: 75, md: 150, lg: 400 }}
+							width={{ sm: 75, md: 150, lg: 300 }}
 						>
 							<Navbar.Section
 								mt="lg"
@@ -144,7 +144,6 @@ export default function NewNav() {
 										to={`/profile/${username}`}
 										style={{ width: "100%" }}
 									>
-										{console.log(largerThanSM && smallerThanLG)}
 										<Group
 											position={`${
 												largerThanSM && smallerThanLG ? "center" : "apart"

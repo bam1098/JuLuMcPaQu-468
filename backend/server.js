@@ -248,6 +248,11 @@ io.on("connection", (socket) => {
 		}
 	});
 
+	socket.on("sendMessage", (chatMessage) => {
+		console.log("woo");
+		io.to(chatMessage.roomId).emit("receiveMessage", chatMessage);
+	});
+
 	socket.on("disconnect", () => {
 		console.log("Client disconnected");
 	});
