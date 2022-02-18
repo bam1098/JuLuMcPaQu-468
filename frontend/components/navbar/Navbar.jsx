@@ -18,6 +18,7 @@ import { useLocalStorageValue, useMediaQuery } from "@mantine/hooks";
 import { Link } from "react-router-dom";
 import { BsChevronRight } from "react-icons/bs";
 import { FaChessQueen } from "react-icons/fa";
+import { IoExtensionPuzzle } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import App from "../../App";
 import jwt_decode from "jwt-decode";
@@ -73,7 +74,7 @@ export default function NewNav() {
 								<UnstyledButton component={Link} to="/game/create">
 									<Group position="center">
 										<FaChessQueen
-											color={"#228be6"}
+											color={"#4c9ce2"}
 											className="icon"
 											title="Play chess"
 										/>
@@ -88,6 +89,24 @@ export default function NewNav() {
 										</MediaQuery>
 									</Group>
 								</UnstyledButton>
+								<UnstyledButton component={Link} to="/puzzles/start">
+									<Group position="center">
+										<IoExtensionPuzzle
+											color={"#4c9ce2"}
+											className="icon"
+											title="Play puzzles"
+										/>
+										<MediaQuery
+											largerThan="sm"
+											smallerThan="lg"
+											styles={{ display: "none" }}
+										>
+											<Text component="p" size="xl">
+												Play puzzles
+											</Text>
+										</MediaQuery>
+									</Group>
+								</UnstyledButton>
 								{username !== "" && (
 									<UnstyledButton
 										onClick={() => {
@@ -97,7 +116,7 @@ export default function NewNav() {
 										}}
 									>
 										<Group position="center">
-											<FiLogOut color={"#228be6"} className="icon" />
+											<FiLogOut color={"#4c9ce2"} className="icon" />
 											<MediaQuery
 												largerThan="sm"
 												smallerThan="lg"
@@ -213,7 +232,7 @@ export default function NewNav() {
 									onClick={() => toggleColorScheme()}
 									title="Toggle color scheme"
 								>
-									{dark ? "🌞" : "🌚"}
+									{dark ? "🌞" : "🌛"}
 								</ActionIcon>
 							</Group>
 						</Header>

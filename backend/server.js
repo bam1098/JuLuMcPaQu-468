@@ -251,8 +251,14 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("sendMessage", (chatMessage) => {
-		console.log("woo");
 		io.to(chatMessage.roomId).emit("receiveMessage", chatMessage);
+	});
+
+	socket.on("cancelSearch", (username) => {
+		const removeIndex = searchingPlayers.findIndex(
+			(player) => player[username]
+		);
+		searchingPlayers.splice(removeIndex, 1);
 	});
 
 	socket.on("disconnect", () => {

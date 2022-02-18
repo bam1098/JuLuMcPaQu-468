@@ -70,13 +70,15 @@ export default function ActiveGame({ socket }) {
 	const sendChat = (e) => {
 		e.preventDefault();
 		let chatMessage = e.target.elements.message.value;
-		chatMessage = chatMessage.trim();
-		const roomId = params.id;
-		socket.emit("sendMessage", {
-			sender: user["username"],
-			message: chatMessage,
-			roomId,
-		});
+		if (chatMessage !== "") {
+			chatMessage = chatMessage.trim();
+			const roomId = params.id;
+			socket.emit("sendMessage", {
+				sender: user["username"],
+				message: chatMessage,
+				roomId,
+			});
+		}
 		e.target.elements.message.value = "";
 		e.target.elements.message.focus();
 	};

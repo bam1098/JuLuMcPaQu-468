@@ -4,6 +4,7 @@ import Register from "./routes/Signup/";
 import Profile from "./routes/Profile/";
 import CreateGame from "./routes/Game/CreateGame";
 import ActiveGame from "./routes/Game/";
+import CreatePuzzleGame from "./routes/Puzzles/";
 
 import { Routes, Route } from "react-router-dom";
 import io from "socket.io-client";
@@ -28,6 +29,11 @@ export default function App() {
 					exact
 					path="/game/:id"
 					element={<ActiveGame socket={socket} />}
+				/>
+				<Route
+					exact
+					path="/puzzles/start"
+					element={<CreatePuzzleGame socket={socket} />}
 				/>
 			</Routes>
 		</>
