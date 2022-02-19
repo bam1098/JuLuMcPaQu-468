@@ -72,7 +72,7 @@ export default function CreateGame({ socket }) {
 						<Text component="p" size="xl">
 							Searching for opponent...
 						</Text>
-						<Loader />
+						<Loader variant="bars" />
 						<Button
 							variant="gradient"
 							gradient={{ from: "orange", to: "red" }}

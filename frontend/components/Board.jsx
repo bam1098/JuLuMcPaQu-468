@@ -1,4 +1,3 @@
-import { Chess } from "chess.js";
 import { Avatar, Group, Text } from "@mantine/core";
 import { Chessboard } from "react-chessboard";
 import { useState, useEffect } from "react";
@@ -9,15 +8,22 @@ import moveAudioFile from "../assets/sounds/Move.mp3";
 import captureAudioFile from "../assets/sounds/Capture.mp3";
 import gameStartAudioFile from "../assets/sounds/GameStart.mp3";
 
-export default function Board({ socket, roomId, user }) {
-	const [game, setGame] = useState(new Chess());
-	const [gameState, setGameState] = useState({});
-	const [fen, setFen] = useState(game.fen());
-	const [opponent, setOpponent] = useState("");
+export default function Board({
+	game,
+	setGame,
+	gameState,
+	setGameState,
+	fen,
+	setFen,
+	socket,
+	roomId,
+	user,
+	opponent,
+	setOpponent,
+}) {
 	const [boardOrientation, setBoardOrientation] = useState("white");
 	const [rightClickedSquares, setRightClickedSquares] = useState({});
 	const [optionSquares, setOptionSquares] = useState({});
-
 	const [playMoveSound] = useSound(moveAudioFile);
 	const [playCaptureSound] = useSound(captureAudioFile);
 

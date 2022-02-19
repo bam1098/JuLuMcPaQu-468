@@ -1,4 +1,5 @@
 import "./ActiveGame.css";
+import { Chess } from "chess.js";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -6,20 +7,25 @@ import {
 	Card,
 	Divider,
 	Group,
-	Modal,
 	ScrollArea,
 	TextInput,
-	Text,
 } from "@mantine/core";
 import Board from "../../components/Board";
 import jwt_decode from "jwt-decode";
+import EndGameModal from "../../components/EndGameModal";
 
 export default function ActiveGame({ socket }) {
 	const params = useParams();
 	const navigate = useNavigate();
-	const [gameEnded, setGameEnded] = useState(false);
+	const [game, setGame] = useState(new Chess());
+	const [gameState, setGameState] = useState({});
+	const [fen, setFen] = useState(game.fen());
+	const [opponent, setOpponent] = useState("");
 	const [endResult, setEndResult] = useState({});
 	const [chatMessages, setChatMessages] = useState([]);
+	const [gameEnded, setGameEnded] = useState(false);
+	const [rematchRequestSent, setRematchRequestSent] = useState(false);
+
 	if (!localStorage.getItem("authToken")) {
 		navigate("/signup");
 		return;
@@ -93,25 +99,29 @@ export default function ActiveGame({ socket }) {
 	return (
 		<>
 			<div className="parent-container">
-				<Modal
-					opened={gameEnded}
-					onClose={() => setGameEnded(false)}
-					centered
-					hideCloseButton
-				>
-					<Text component="h2" size="xl">
-						{endResult.winner === undefined
-							? "The game has ended in a draw!"
-							: `${endResult.winner} has won the game!`}
-					</Text>
-					<Text component="h3" size="lg">
-						{endResult.draw === false && endResult.winner === user.username
-							? "Congratulations!"
-							: "Better luck next time!"}
-					</Text>
-				</Modal>
+				<EndGameModal
+					gameEnded={gameEnded}
+					setGameEnded={setGameEnded}
+					endResult={endResult}
+					rematchRequestSent={rematchRequestSent}
+					setRematchRequestSent={setRematchRequestSent}
+					user={user}
+					socket={socket}
+				/>
 				<div className="board-container">
-					<Board socket={socket} roomId={params.id} user={user} />
+					<Board
+						game={game}
+						setGame={setGame}
+						gameState={gameState}
+						setGameState={setGameState}
+						fen={fen}
+						setFen={setFen}
+						socket={socket}
+						roomId={params.id}
+						user={user}
+						opponent={opponent}
+						setOpponent={setOpponent}
+					/>
 				</div>
 				<Card className="chat-card">
 					<h2>Chat</h2>
