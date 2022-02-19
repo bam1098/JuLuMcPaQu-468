@@ -6,10 +6,8 @@ import { BrowserRouter } from "react-router-dom";
 import Navbar from "./components/navbar/Navbar";
 
 ReactDOM.render(
-	<React.StrictMode>
-		<BrowserRouter>
-			<Navbar />
-		</BrowserRouter>
-	</React.StrictMode>,
+	<BrowserRouter>
+		<Navbar />
+	</BrowserRouter>,
 	document.getElementById("root")
 );

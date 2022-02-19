@@ -1,8 +1,13 @@
 import { Chess } from "chess.js";
 import { Avatar, Group, Text } from "@mantine/core";
 import { Chessboard } from "react-chessboard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { aiMove } from "js-chess-engine";
+import useSound from "use-sound";
+
+import moveAudioFile from "../assets/sounds/Move.mp3";
+import captureAudioFile from "../assets/sounds/Capture.mp3";
+import gameStartAudioFile from "../assets/sounds/GameStart.mp3";
 
 export default function Board({ socket, roomId, user }) {
 	const [game, setGame] = useState(new Chess());
@@ -12,6 +17,13 @@ export default function Board({ socket, roomId, user }) {
 	const [boardOrientation, setBoardOrientation] = useState("white");
 	const [rightClickedSquares, setRightClickedSquares] = useState({});
 	const [optionSquares, setOptionSquares] = useState({});
+
+	const [playMoveSound] = useSound(moveAudioFile);
+	const [playCaptureSound] = useSound(captureAudioFile);
+
+	const moveAudio = new Audio(moveAudioFile);
+	const captureAudio = new Audio(captureAudioFile);
+	const gameStartAudio = new Audio(gameStartAudioFile);
 
 	function safeGameMutate(modify) {
 		setGame((g) => {
@@ -128,6 +140,8 @@ export default function Board({ socket, roomId, user }) {
 			});
 		});
 		if (move === null) return false; // illegal move
+		if (move.captured) playCaptureSound();
+		else playMoveSound();
 		if (gameState.vsComputer === true) {
 			setFen(game.fen());
 			if (game.game_over()) {
@@ -139,7 +153,7 @@ export default function Board({ socket, roomId, user }) {
 			socket.emit("moveMade", {
 				roomId,
 				fen: game.fen(),
-				move: game.history()[game.history().length - 1],
+				move: { sourceSquare, targetSquare },
 			});
 			setFen(game.fen());
 			if (game.game_over()) {
@@ -162,6 +176,8 @@ export default function Board({ socket, roomId, user }) {
 					to: toSquare.toLowerCase(),
 					promotion: "q", // always promote to a queen for example simplicity
 				});
+				if (move.captured) playCaptureSound();
+				else playMoveSound();
 			});
 		}
 		setFen(game.fen());
@@ -170,29 +186,45 @@ export default function Board({ socket, roomId, user }) {
 		}
 	}
 
-	socket.on("playerJoined", (gameState) => {
-		setGameState(gameState);
-		for (const [key] of Object.entries(gameState.players)) {
-			if (key !== user["username"]) {
-				setOpponent(key);
+	useEffect(() => {
+		gameStartAudio.play();
+		socket.on("playerJoined", (gameState) => {
+			setGameState(gameState);
+			for (const [key] of Object.entries(gameState.players)) {
+				if (key !== user["username"]) {
+					setOpponent(key);
+				}
 			}
-		}
-		game.load(gameState.fen);
-		setFen(gameState.fen);
-		setBoardOrientation(gameState.players[user["username"]].color);
-		if (
-			gameState &&
-			gameState.vsComputer === true &&
-			gameState.players["Computer"].color.charAt(0) === game.turn()
-		) {
-			makeComputerMove(gameState);
-		}
-	});
+			game.load(gameState.fen);
+			setFen(gameState.fen);
+			setBoardOrientation(gameState.players[user["username"]].color);
+			if (
+				gameState &&
+				gameState.vsComputer === true &&
+				gameState.players["Computer"].color.charAt(0) === game.turn()
+			) {
+				makeComputerMove(gameState);
+			}
+		});
 
-	socket.on("opponentMoved", (move) => {
-		game.move(move.move);
-		setFen(game.fen());
-	});
+		socket.on("opponentMoved", (moveMade) => {
+			let move = null;
+			safeGameMutate((game) => {
+				move = game.move({
+					from: moveMade.move.sourceSquare,
+					to: moveMade.move.targetSquare,
+					promotion: "q", // always promote to a queen for example simplicity
+				});
+				handleSoundPlay(move);
+			});
+			setFen(game.fen());
+		});
+	}, []);
+
+	function handleSoundPlay(move) {
+		if (move && move.captured !== undefined) captureAudio.play();
+		else moveAudio.play();
+	}
 
 	return (
 		<>
