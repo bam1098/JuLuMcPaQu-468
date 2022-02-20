@@ -35,6 +35,7 @@ export default function NewNav() {
 	const [username, setUsername] = useState("");
 	const dark = colorScheme === "dark";
 	const largerThanSM = useMediaQuery("(min-width: 768px)");
+	const smallerThanSM = useMediaQuery("(max-width: 767px)");
 	const smallerThanLG = useMediaQuery("(max-width: 1200px)");
 
 	useEffect(() => {
@@ -55,12 +56,56 @@ export default function NewNav() {
 					fixed
 					navbar={
 						<Navbar
-							height={"calc(100vh - 60px)"}
+							height={smallerThanSM ? "calc(100vh - 60px)" : "100vh"}
 							padding="md"
 							hiddenBreakpoint="sm"
 							hidden={!opened}
-							width={{ sm: 75, md: 150, lg: 300 }}
+							width={{ sm: 75, md: 150, lg: 250 }}
+							style={{ marginTop: smallerThanSM ? "60px" : "0" }}
 						>
+							<MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+								<Navbar.Section
+									style={{
+										width: "100%",
+										paddingBottom: "12px",
+										borderBottom: "1px solid rgb(233, 236, 239)",
+									}}
+								>
+									<MediaQuery
+										smallerThan="lg"
+										styles={{ flexDirection: "column", alignContent: "center" }}
+									>
+										<Group position="apart">
+											<MediaQuery largerThan="sm" styles={{ display: "none" }}>
+												<Burger
+													opened={opened}
+													onClick={() => setOpened((o) => !o)}
+													size="md"
+													mr="xl"
+												/>
+											</MediaQuery>
+											<Text
+												component={Link}
+												to="/"
+												variant="gradient"
+												size="xl"
+												weight={700}
+												gradient={{ from: "indigo", to: "cyan", deg: 45 }}
+											>
+												Chess Game
+											</Text>
+											<ActionIcon
+												variant="outline"
+												color={dark ? "yellow" : "gray"}
+												onClick={() => toggleColorScheme()}
+												title="Toggle color scheme"
+											>
+												{dark ? "🌞" : "🌛"}
+											</ActionIcon>
+										</Group>
+									</MediaQuery>
+								</Navbar.Section>
+							</MediaQuery>
 							<Navbar.Section
 								mt="lg"
 								grow
@@ -71,7 +116,11 @@ export default function NewNav() {
 									justifyContent: "space-evenly",
 								}}
 							>
-								<UnstyledButton component={Link} to="/game/create">
+								<UnstyledButton
+									component={Link}
+									to="/game/create"
+									onClick={() => setOpened((o) => !o)}
+								>
 									<Group position="center">
 										<FaChessQueen
 											color={"#4c9ce2"}
@@ -89,7 +138,11 @@ export default function NewNav() {
 										</MediaQuery>
 									</Group>
 								</UnstyledButton>
-								<UnstyledButton component={Link} to="/puzzles/start">
+								<UnstyledButton
+									component={Link}
+									to="/puzzles/start"
+									onClick={() => setOpened((o) => !o)}
+								>
 									<Group position="center">
 										<IoExtensionPuzzle
 											color={"#4c9ce2"}
@@ -112,6 +165,7 @@ export default function NewNav() {
 										onClick={() => {
 											localStorage.removeItem("authToken");
 											setUsername("");
+											setOpened((o) => !o);
 											window.location = "/";
 										}}
 									>
@@ -146,6 +200,7 @@ export default function NewNav() {
 											to="/login"
 											variant="gradient"
 											gradient={{ from: "indigo", to: "cyan" }}
+											style={{ margin: 0 }}
 										>
 											Log in
 										</Button>
@@ -171,6 +226,7 @@ export default function NewNav() {
 											position={`${
 												largerThanSM && smallerThanLG ? "center" : "apart"
 											}`}
+											style={{ alignItems: "baseline" }}
 										>
 											<Group>
 												<Avatar color="blue" size="lg">
@@ -202,20 +258,24 @@ export default function NewNav() {
 						</Navbar>
 					}
 					header={
-						<Header
-							height={60}
-							padding="xs"
-							style={{ display: "flex", alignItems: "center" }}
-						>
-							<Group position="apart" className="nav-container">
-								<MediaQuery largerThan="sm" styles={{ display: "none" }}>
-									<Burger
-										opened={opened}
-										onClick={() => setOpened((o) => !o)}
-										size="md"
-										mr="xl"
-									/>
-								</MediaQuery>
+						<MediaQuery largerThan="sm" styles={{ display: "none" }}>
+							<Group
+								position="apart"
+								style={{
+									width: "100%",
+									padding: "0 40px",
+									height: "60px",
+									position: "fixed",
+									backgroundColor: "#1A1B1E",
+									borderBottom: "1px solid #2C2E33",
+								}}
+							>
+								<Burger
+									opened={opened}
+									onClick={() => setOpened((o) => !o)}
+									size="md"
+									mr="xl"
+								/>
 								<Text
 									component={Link}
 									to="/"
@@ -235,7 +295,7 @@ export default function NewNav() {
 									{dark ? "🌞" : "🌛"}
 								</ActionIcon>
 							</Group>
-						</Header>
+						</MediaQuery>
 					}
 					styles={(theme) => ({
 						main: {
@@ -246,7 +306,9 @@ export default function NewNav() {
 						},
 					})}
 				>
-					<App />
+					<div style={{ marginTop: smallerThanSM ? "60px" : "0" }}>
+						<App />
+					</div>
 				</AppShell>
 			</MantineProvider>
 		</ColorSchemeProvider>

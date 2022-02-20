@@ -18,3 +18,7 @@ nav .icon {
 .user-button:hover {
 	background-color: rgb(248, 249, 250);
 }
+
+.mantine-Burger-root {
+	margin: 0;
+}

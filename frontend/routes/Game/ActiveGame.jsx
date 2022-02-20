@@ -24,7 +24,9 @@ export default function ActiveGame({ socket }) {
 	const [endResult, setEndResult] = useState({});
 	const [chatMessages, setChatMessages] = useState([]);
 	const [gameEnded, setGameEnded] = useState(false);
+	const [modalOpened, setModalOpened] = useState(false);
 	const [rematchRequestSent, setRematchRequestSent] = useState(false);
+	const [chessboardSize, setChessboardSize] = useState(undefined);
 
 	if (!localStorage.getItem("authToken")) {
 		navigate("/signup");
@@ -35,6 +37,7 @@ export default function ActiveGame({ socket }) {
 	);
 
 	const chatViewport = useRef();
+	const containerRef = useRef();
 	const scrollToBottom = () =>
 		chatViewport.current.scrollTo({
 			top: chatViewport.current.scrollHeight,
@@ -42,6 +45,12 @@ export default function ActiveGame({ socket }) {
 		});
 
 	useEffect(() => {
+		function handleResize() {
+			const display = containerRef.current;
+			setChessboardSize(display.offsetWidth - 100);
+		}
+		window.addEventListener("resize", handleResize);
+		handleResize();
 		socket.emit("joinRoom", {
 			username: user.username,
 			roomId: params.id,
@@ -63,6 +72,7 @@ export default function ActiveGame({ socket }) {
 
 		socket.on("endGame", (result) => {
 			setGameEnded(true);
+			setModalOpened(true);
 			setEndResult(result);
 		});
 
@@ -70,13 +80,38 @@ export default function ActiveGame({ socket }) {
 			setChatMessages((previousMessages) => [...previousMessages, chatMessage]);
 			scrollToBottom();
 		});
+
+		return () => {
+			window.removeEventListener("resize", handleResize);
+			socket.off();
+		};
 	}, []);
+
+	const sendRematchRequest = () => {
+		if (rematchRequestSent) {
+			setRematchRequestSent(false);
+			socket.emit("cancelRematchRequest");
+		} else {
+			setRematchRequestSent(true);
+			socket.emit("rematchRequest");
+		}
+	};
+
+	const resign = () => {
+		const roomId = params.id;
+		socket.emit("gameOver", {
+			game: gameState,
+			roomId,
+			draw: false,
+			winner: opponent,
+			loser: user.username,
+		});
+	};
 
 	const sendChat = (e) => {
 		e.preventDefault();
-		let chatMessage = e.target.elements.message.value;
+		let chatMessage = e.target.elements.message.value.trim();
 		if (chatMessage !== "") {
-			chatMessage = chatMessage.trim();
 			const roomId = params.id;
 			socket.emit("sendMessage", {
 				sender: user["username"],
@@ -98,47 +133,104 @@ export default function ActiveGame({ socket }) {
 
 	return (
 		<>
-			<div className="parent-container">
-				<EndGameModal
-					gameEnded={gameEnded}
-					setGameEnded={setGameEnded}
-					endResult={endResult}
-					rematchRequestSent={rematchRequestSent}
-					setRematchRequestSent={setRematchRequestSent}
-					user={user}
-					socket={socket}
-				/>
-				<div className="board-container">
-					<Board
-						game={game}
-						setGame={setGame}
-						gameState={gameState}
-						setGameState={setGameState}
-						fen={fen}
-						setFen={setFen}
-						socket={socket}
-						roomId={params.id}
+			<div
+				className="game-container"
+				style={{
+					width: "100%",
+					height: "100%",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+				}}
+			>
+				<div
+					className="parent-container"
+					style={{ width: "100%", height: "calc(100vh - 32px)" }}
+				>
+					<EndGameModal
+						modalOpened={modalOpened}
+						setModalOpened={setModalOpened}
+						endResult={endResult}
+						sendRematchRequest={sendRematchRequest}
+						rematchRequestSent={rematchRequestSent}
+						setRematchRequestSent={setRematchRequestSent}
 						user={user}
-						opponent={opponent}
-						setOpponent={setOpponent}
+						navigate={navigate}
 					/>
-				</div>
-				<Card className="chat-card">
-					<h2>Chat</h2>
-					<Divider />
-					<form onSubmit={sendChat}>
+					<div
+						className="board-container"
+						style={{ maxWidth: "940px" }}
+						ref={containerRef}
+					>
+						<Board
+							game={game}
+							setGame={setGame}
+							gameState={gameState}
+							setGameState={setGameState}
+							fen={fen}
+							setFen={setFen}
+							socket={socket}
+							roomId={params.id}
+							user={user}
+							opponent={opponent}
+							setOpponent={setOpponent}
+							boardWidth={chessboardSize}
+						/>
+					</div>
+					<Card className="chat-card">
+						<h2>Chat</h2>
+						<Divider />
 						<ScrollArea style={{ height: "250px" }} viewportRef={chatViewport}>
 							{renderChat()}
 						</ScrollArea>
 						<Divider />
-						<Group spacing="xs" noWrap style={{ marginTop: "1rem" }}>
-							<TextInput type="text" name="message" />
-							<Button type="submit" variant="gradient">
-								Send
-							</Button>
-						</Group>
-					</form>
-				</Card>
+						<form onSubmit={sendChat}>
+							<Group spacing="xs" noWrap style={{ margin: "1rem 0" }}>
+								<TextInput type="text" name="message" />
+								<Button type="submit" variant="gradient">
+									Send
+								</Button>
+							</Group>
+						</form>
+						{!modalOpened && (
+							<>
+								<Group spacing="xs" noWrap style={{ marginTop: "1rem" }}>
+									{gameEnded ? (
+										<>
+											<Button variant="light" style={{ width: "50%" }}>
+												Rematch
+											</Button>
+											<Button
+												variant="light"
+												style={{ width: "50%" }}
+												onClick={() => navigate("/game/create")}
+											>
+												New game
+											</Button>
+										</>
+									) : (
+										<>
+											{opponent !== "Computer" && (
+												<Button variant="light" style={{ width: "50%" }}>
+													Draw
+												</Button>
+											)}
+											<Button
+												variant="light"
+												style={{
+													width: opponent !== "Computer" ? "50%" : "100%",
+												}}
+												onClick={() => resign()}
+											>
+												Resign
+											</Button>
+										</>
+									)}
+								</Group>
+							</>
+						)}
+					</Card>
+				</div>
 			</div>
 		</>
 	);

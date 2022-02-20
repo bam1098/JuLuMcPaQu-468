@@ -99,7 +99,6 @@ io.on("connection", (socket) => {
 					difficulty: settings.difficulty,
 				};
 			}
-
 			socket.emit("roomId", roomId);
 		}
 	});
@@ -160,6 +159,11 @@ io.on("connection", (socket) => {
 		games[move.roomId].fen = move.fen;
 		games[move.roomId].turn += 1;
 		socket.broadcast.to(move.roomId).emit("opponentMoved", move);
+	});
+
+	socket.on("saveMove", (move) => {
+		games[move.roomId].fen = move.fen;
+		games[move.roomId].turn += 1;
 	});
 
 	socket.on("gameOver", async (result) => {
@@ -248,6 +252,8 @@ io.on("connection", (socket) => {
 			}
 		}
 		io.to(result.roomId).emit("endGame", result);
+		delete games[result.roomId];
+		io.in(result.roomId).socketsLeave(result.roomId);
 	});
 
 	socket.on("sendMessage", (chatMessage) => {

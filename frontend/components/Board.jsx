@@ -20,6 +20,7 @@ export default function Board({
 	user,
 	opponent,
 	setOpponent,
+	boardWidth,
 }) {
 	const [boardOrientation, setBoardOrientation] = useState("white");
 	const [rightClickedSquares, setRightClickedSquares] = useState({});
@@ -149,6 +150,11 @@ export default function Board({
 		if (move.captured) playCaptureSound();
 		else playMoveSound();
 		if (gameState.vsComputer === true) {
+			socket.emit("saveMove", {
+				roomId,
+				fen: game.fen(),
+				move: { sourceSquare, targetSquare },
+			});
 			setFen(game.fen());
 			if (game.game_over()) {
 				handleGameOver();
@@ -184,6 +190,11 @@ export default function Board({
 				});
 				if (move.captured) playCaptureSound();
 				else playMoveSound();
+			});
+			socket.emit("saveMove", {
+				roomId,
+				fen: game.fen(),
+				move: { fromSquare, toSquare },
 			});
 		}
 		setFen(game.fen());
@@ -225,6 +236,8 @@ export default function Board({
 			});
 			setFen(game.fen());
 		});
+
+		return () => socket.off();
 	}, []);
 
 	function handleSoundPlay(move) {
@@ -234,7 +247,7 @@ export default function Board({
 
 	return (
 		<>
-			<div style={{ width: "500px", marginBottom: "1rem" }}>
+			<div style={{ width: boardWidth, marginBottom: "1rem" }}>
 				<Group>
 					<Avatar color="blue" size="md">
 						{opponent.charAt(0)}
@@ -261,9 +274,9 @@ export default function Board({
 					...optionSquares,
 					...rightClickedSquares,
 				}}
-				boardWidth={500}
+				boardWidth={boardWidth}
 			/>
-			<div style={{ width: "500px", marginTop: "1rem" }}>
+			<div style={{ width: boardWidth, marginTop: "1rem" }}>
 				<Group>
 					<Avatar color="blue" size="md">
 						{user["username"].charAt(0)}

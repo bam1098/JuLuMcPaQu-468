@@ -29,6 +29,16 @@ export default function CreateGame({ socket }) {
 			const loggedInUser = jwt_decode(localStorage.getItem("authToken"));
 			setUser(loggedInUser);
 		}
+
+		socket.on("roomId", (roomId) => {
+			navigate(`/game/${roomId}`);
+		});
+
+		socket.on("findingOpponent", () => {
+			setFindingOpponent(true);
+		});
+
+		return () => socket.off();
 	}, []);
 
 	const createRoom = (e) => {
@@ -47,14 +57,6 @@ export default function CreateGame({ socket }) {
 		socket.emit("cancelSearch", user.username);
 		setFindingOpponent(false);
 	};
-
-	socket.on("roomId", (roomId) => {
-		navigate(`/game/${roomId}`);
-	});
-
-	socket.on("findingOpponent", () => {
-		setFindingOpponent(true);
-	});
 
 	return (
 		<div className={styles.card_container}>

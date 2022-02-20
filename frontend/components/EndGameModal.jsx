@@ -1,28 +1,19 @@
 import { Avatar, Button, Group, Modal, Text } from "@mantine/core";
 
 export default function EndGameModal({
-	gameEnded,
-	setGameEnded,
+	modalOpened,
+	setModalOpened,
 	endResult,
+	sendRematchRequest,
 	rematchRequestSent,
 	setRematchRequestSent,
 	user,
-	socket,
+	navigate,
 }) {
-	const sendRematchRequest = () => {
-		if (rematchRequestSent) {
-			setRematchRequestSent(false);
-			socket.emit("cancelRematchRequest");
-		} else {
-			setRematchRequestSent(true);
-			socket.emit("rematchRequest");
-		}
-	};
-
 	return (
 		<Modal
-			opened={gameEnded}
-			onClose={() => setGameEnded(false)}
+			opened={modalOpened}
+			onClose={() => setModalOpened(false)}
 			centered
 			hideCloseButton
 		>
