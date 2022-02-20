@@ -20,13 +20,13 @@ export default function EndGameModal({
 			<Group position="center" direction="column" spacing="none">
 				<Text component="h2" size="xl">
 					{endResult.winner === undefined
-						? "The game has ended in a draw!"
+						? "The game has ended in a draw"
 						: `${endResult.winner} has won`}
 				</Text>
 				<Text component="h3" size="lg" color="dimmed">
 					{endResult.draw === false && endResult.winner === user.username
 						? "Congratulations!"
-						: "Better luck next time!"}
+						: "Play again?"}
 				</Text>
 			</Group>
 			{endResult.draw === false ? (

@@ -260,6 +260,33 @@ io.on("connection", (socket) => {
 		io.to(chatMessage.roomId).emit("receiveMessage", chatMessage);
 	});
 
+	socket.on("drawOffer", (offerDetails) => {
+		io.to(offerDetails.roomId).emit("receiveMessage", {
+			sender: "System",
+			message: `${offerDetails.username} has offered a draw`,
+			roomId: offerDetails.roomId,
+		});
+		socket.broadcast.emit("drawOffered");
+	});
+
+	socket.on("declineDrawOffer", (offerDetails) => {
+		io.to(offerDetails.roomId).emit("receiveMessage", {
+			sender: "System",
+			message: `${offerDetails.username} has declined the draw offer`,
+			roomId: offerDetails.roomId,
+		});
+		io.in(offerDetails.roomId).emit("drawOfferDeclined");
+	});
+
+	socket.on("cancelDrawOffer", (offerDetails) => {
+		io.to(offerDetails.roomId).emit("receiveMessage", {
+			sender: "System",
+			message: `${offerDetails.username} has cancelled their draw offer`,
+			roomId: offerDetails.roomId,
+		});
+		io.in(offerDetails.roomId).emit("drawOfferCancelled");
+	});
+
 	socket.on("cancelSearch", (username) => {
 		const removeIndex = searchingPlayers.findIndex(
 			(player) => player[username]

@@ -26,6 +26,8 @@ export default function ActiveGame({ socket }) {
 	const [gameEnded, setGameEnded] = useState(false);
 	const [modalOpened, setModalOpened] = useState(false);
 	const [rematchRequestSent, setRematchRequestSent] = useState(false);
+	const [drawOfferSent, setDrawOfferSent] = useState(false);
+	const [drawOfferReceived, setDrawOfferReceived] = useState(false);
 	const [chessboardSize, setChessboardSize] = useState(undefined);
 
 	if (!localStorage.getItem("authToken")) {
@@ -81,6 +83,20 @@ export default function ActiveGame({ socket }) {
 			scrollToBottom();
 		});
 
+		socket.on("drawOffered", () => {
+			setDrawOfferReceived(true);
+		});
+
+		socket.on("drawOfferDeclined", () => {
+			setDrawOfferSent(false);
+			setDrawOfferReceived(false);
+		});
+
+		socket.on("drawOfferCancelled", () => {
+			setDrawOfferSent(false);
+			setDrawOfferReceived(false);
+		});
+
 		return () => {
 			window.removeEventListener("resize", handleResize);
 			socket.off();
@@ -95,6 +111,41 @@ export default function ActiveGame({ socket }) {
 			setRematchRequestSent(true);
 			socket.emit("rematchRequest");
 		}
+	};
+
+	const offerDraw = () => {
+		const roomId = params.id;
+		if (drawOfferReceived) {
+			socket.emit("gameOver", {
+				game: gameState,
+				roomId,
+				draw: true,
+				playerOne: user.username,
+				playerTwo: opponent,
+			});
+		} else {
+			if (drawOfferSent) {
+				setDrawOfferSent(false);
+				socket.emit("cancelDrawOffer", {
+					roomId,
+					username: user.username,
+				});
+			} else {
+				setDrawOfferSent(true);
+				socket.emit("drawOffer", {
+					roomId,
+					username: user.username,
+				});
+			}
+		}
+	};
+
+	const declineDraw = () => {
+		setDrawOfferReceived(false);
+		socket.emit("declineDrawOffer", {
+			roomId: params.id,
+			username: user.username,
+		});
 	};
 
 	const resign = () => {
@@ -194,7 +245,11 @@ export default function ActiveGame({ socket }) {
 						</form>
 						{!modalOpened && (
 							<>
-								<Group spacing="xs" noWrap style={{ marginTop: "1rem" }}>
+								<Group
+									spacing="xs"
+									noWrap={!drawOfferReceived}
+									style={{ marginTop: "1rem" }}
+								>
 									{gameEnded ? (
 										<>
 											<Button variant="light" style={{ width: "50%" }}>
@@ -211,14 +266,45 @@ export default function ActiveGame({ socket }) {
 									) : (
 										<>
 											{opponent !== "Computer" && (
-												<Button variant="light" style={{ width: "50%" }}>
-													Draw
-												</Button>
+												<>
+													{drawOfferReceived ? (
+														<>
+															<Button
+																variant="light"
+																style={{ width: "48%" }}
+																onClick={() => {
+																	setDrawOfferReceived(false);
+																	offerDraw();
+																}}
+															>
+																Accept draw
+															</Button>
+															<Button
+																variant="light"
+																style={{ width: "48%" }}
+																onClick={() => declineDraw()}
+															>
+																Decline draw
+															</Button>
+														</>
+													) : (
+														<Button
+															variant="light"
+															style={{ width: "50%" }}
+															onClick={() => offerDraw()}
+														>
+															{drawOfferSent ? "Cancel offer" : "Draw"}
+														</Button>
+													)}
+												</>
 											)}
 											<Button
 												variant="light"
 												style={{
-													width: opponent !== "Computer" ? "50%" : "100%",
+													width:
+														opponent === "Computer" || drawOfferReceived
+															? "100%"
+															: "50%",
 												}}
 												onClick={() => resign()}
 											>

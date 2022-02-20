@@ -208,7 +208,7 @@ export default function NewNav() {
 											component={Link}
 											size="md"
 											fullWidth
-											to="singup"
+											to="/signup"
 											variant="gradient"
 											gradient={{ from: "indigo", to: "cyan" }}
 										>
@@ -306,7 +306,13 @@ export default function NewNav() {
 						},
 					})}
 				>
-					<div style={{ marginTop: smallerThanSM ? "60px" : "0" }}>
+					<div
+						style={{
+							marginTop: smallerThanSM ? "60px" : "0",
+							width: "100%",
+							height: "100%",
+						}}
+					>
 						<App />
 					</div>
 				</AppShell>

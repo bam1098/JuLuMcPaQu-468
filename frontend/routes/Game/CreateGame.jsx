@@ -69,6 +69,8 @@ export default function CreateGame({ socket }) {
 					opened={findingOpponent}
 					onClose={() => cancelSearch()}
 					hideCloseButton
+					closeOnClickOutside={false}
+					closeOnEscape={false}
 				>
 					<Group direction="column" position="center">
 						<Text component="p" size="xl">
