@@ -264,6 +264,8 @@ export default function ActiveGame({ socket }) {
 							fenHistory.indexOf(fen) === turn[0].moveIndex + 1
 								? "rgba(25, 113, 194, 0.35)"
 								: "",
+						fontFamily: "Noto Chess, Noto Sans",
+						fontSize: "0.95rem",
 					}}
 					onClick={() => setFen(fenHistory[turn[0].moveIndex + 1])}
 				>
@@ -278,6 +280,8 @@ export default function ActiveGame({ socket }) {
 								fenHistory.indexOf(fen) === turn[1].moveIndex + 1
 									? "rgba(25, 113, 194, 0.35)"
 									: "",
+							fontFamily: "Noto Chess, Noto Sans",
+							fontSize: "0.95rem",
 						}}
 						onClick={() => setFen(fenHistory[turn[1].moveIndex + 1])}
 					>
@@ -347,7 +351,7 @@ export default function ActiveGame({ socket }) {
 						</Text>
 						<Divider />
 						<ScrollArea
-							style={{ height: "150px" }}
+							style={{ height: "150px", marginBottom: "0.25em" }}
 							viewportRef={historyViewport}
 						>
 							{renderHistory()}
@@ -385,19 +389,29 @@ export default function ActiveGame({ socket }) {
 							</Button>
 						</Group>
 						<Divider />
-						<Text style={{ fontSize: "1.5em", fontWeight: "bold" }}>Chat</Text>
-						<ScrollArea style={{ height: "250px" }} viewportRef={chatViewport}>
-							{renderChat()}
-						</ScrollArea>
-						<Divider />
-						<form onSubmit={sendChat}>
-							<Group spacing="xs" noWrap style={{ margin: "1rem 0" }}>
-								<TextInput type="text" name="message" />
-								<Button type="submit" variant="gradient">
-									Send
-								</Button>
-							</Group>
-						</form>
+						{opponent !== "Computer" && (
+							<>
+								<Text style={{ fontSize: "1.5em", fontWeight: "bold" }}>
+									Chat
+								</Text>
+								<Divider />
+								<ScrollArea
+									style={{ height: "250px" }}
+									viewportRef={chatViewport}
+								>
+									{renderChat()}
+								</ScrollArea>
+								<Divider />
+								<form onSubmit={sendChat}>
+									<Group spacing="xs" noWrap style={{ margin: "1rem 0" }}>
+										<TextInput type="text" name="message" />
+										<Button type="submit" variant="gradient">
+											Send
+										</Button>
+									</Group>
+								</form>
+							</>
+						)}
 						{!modalOpened && (
 							<>
 								<Group
