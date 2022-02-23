@@ -1718,11 +1718,10 @@ raw-body@2.4.2:
     unpipe "1.0.0"
 
 react-chessboard@^1.0.3:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/react-chessboard/-/react-chessboard-1.0.5.tgz#a5441d11179e331865945aa9752c570179f78891"
-  integrity sha512-wFXcW1vMnwXmzPENf0STNa5AvimRUeSrGyxdpdvW0PFw8yvFNHIWnOzr3ZiRLr38q7vPNzK+daIS7xG14XwAeA==
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/react-chessboard/-/react-chessboard-1.2.1.tgz#3c30d9f9fba952243ade664d453f8e41e3a9ba12"
+  integrity sha512-xaI0Bso9bUdy2DM0Sb6ISYkxN8oSVyKoAxnEYk9Mhzrr1JsudaaES454VQTxejlYdj2QbQ+Sf0zFeuwPJCWWuQ==
   dependencies:
-    prop-types "^15.7.2"
     react-dnd "^14.0.3"
     react-dnd-html5-backend "^14.0.1"
     react-dnd-multi-backend "^6.0.2"

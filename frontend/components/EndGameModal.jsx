@@ -1,13 +1,19 @@
 import { Avatar, Button, Group, Modal, Text } from "@mantine/core";
 
 export default function EndGameModal({
+	gameState,
 	modalOpened,
 	setModalOpened,
 	endResult,
 	sendRematchRequest,
 	rematchRequestSent,
+	rematchRequestReceived,
+	setRematchRequestReceived,
+	rematchRequestDeclined,
 	setRematchRequestSent,
+	declineRematch,
 	user,
+	socket,
 	navigate,
 }) {
 	return (
@@ -56,28 +62,51 @@ export default function EndGameModal({
 					</Avatar>
 				</Group>
 			)}
-			<Group position="center" mt="lg">
-				<div style={{ width: "150px" }}>
+			<Group position="center" mt="lg" noWrap={!rematchRequestReceived}>
+				{rematchRequestReceived ? (
+					<>
+						<Button
+							variant="light"
+							style={{ width: "48%", padding: 0 }}
+							disabled={rematchRequestDeclined}
+							onClick={() => {
+								sendRematchRequest();
+							}}
+						>
+							Accept rematch
+						</Button>
+						<Button
+							variant="light"
+							disabled={rematchRequestDeclined}
+							style={{ width: "48%", padding: 0 }}
+							onClick={() => declineRematch()}
+						>
+							Decline rematch
+						</Button>
+					</>
+				) : (
 					<Button
-						variant="gradient"
-						gradient={{ from: "indigo", to: "cyan" }}
-						fullWidth
-						loading={rematchRequestSent}
+						variant="light"
+						disabled={rematchRequestSent || rematchRequestDeclined}
 						onClick={() => sendRematchRequest()}
+						style={{ width: "50%", padding: 0 }}
 					>
-						{rematchRequestSent ? "Request sent" : "Rematch"}
+						{rematchRequestDeclined
+							? "Request declined"
+							: rematchRequestSent
+							? "Request sent"
+							: "Rematch"}
 					</Button>
-				</div>
-				<div style={{ width: "150px" }}>
-					<Button
-						fullWidth
-						variant="gradient"
-						gradient={{ from: "indigo", to: "cyan" }}
-						onClick={() => navigate("/game/create")}
-					>
-						New Game
-					</Button>
-				</div>
+				)}
+				<Button
+					variant="light"
+					style={{
+						width: rematchRequestReceived ? "100%" : "50%",
+					}}
+					onClick={() => navigate("/game/create")}
+				>
+					New game
+				</Button>
 			</Group>
 		</Modal>
 	);

@@ -33,10 +33,6 @@ let searchingPlayers = [];
 io.on("connection", (socket) => {
 	console.log("New user connected");
 	socket.on("createRoom", (settings) => {
-		if (socket.rooms.size >= 2) {
-			socket.emit("roomRedirect", Array.from(socket.rooms)[1]);
-			return;
-		}
 		if (settings.gameType === "public") {
 			if (searchingPlayers.length === 0) {
 				searchingPlayers.push({ username: settings.username, socket });
@@ -124,6 +120,7 @@ io.on("connection", (socket) => {
 		if (games[newUser.roomId].players[newUser.username]) {
 			games[newUser.roomId].players[newUser.username].id = socket.id;
 			socket.join(newUser.roomId);
+			socket.join(`${newUser.roomId}-chat`);
 			socket.emit("playerJoined", games[newUser.roomId]);
 			return;
 		}
@@ -152,6 +149,7 @@ io.on("connection", (socket) => {
 			};
 		}
 		socket.join(newUser.roomId);
+		socket.join(`${newUser.roomId}-chat`);
 		io.to(newUser.roomId).emit("playerJoined", games[newUser.roomId]);
 	});
 
@@ -266,7 +264,7 @@ io.on("connection", (socket) => {
 			message: `${offerDetails.username} has offered a draw`,
 			roomId: offerDetails.roomId,
 		});
-		socket.broadcast.emit("drawOffered");
+		socket.to(offerDetails.roomId).emit("drawOffered");
 	});
 
 	socket.on("declineDrawOffer", (offerDetails) => {
@@ -285,6 +283,44 @@ io.on("connection", (socket) => {
 			roomId: offerDetails.roomId,
 		});
 		io.in(offerDetails.roomId).emit("drawOfferCancelled");
+	});
+
+	socket.on("rematchRequest", (requestDetails) => {
+		if (requestDetails.opponent === "Computer") {
+			socket.to(`${requestDetails.roomId}`).emit("restartGame");
+		} else {
+			io.to(requestDetails.roomId).emit("receiveMessage", {
+				sender: "System",
+				message: `${requestDetails.username} has offered a rematch`,
+				roomId: `${requestDetails.roomId}-chat`,
+			});
+			socket.to(`${requestDetails.roomId}`).emit("rematchRequested");
+		}
+	});
+
+	socket.on("declineRematchRequest", (requestDetails) => {
+		io.to(requestDetails.roomId).emit("receiveMessage", {
+			sender: "System",
+			message: `${requestDetails.username} has declined the rematch`,
+			roomId: `${requestDetails.roomId}-chat`,
+		});
+		io.in(requestDetails.roomId).emit("rematchRequestDeclined");
+	});
+
+	socket.on("restartGame", (data) => {
+		for (let key of Object.keys(data.players)) {
+			io.sockets.sockets.get(data.players[key].id).join(data.roomId);
+		}
+		games[data.roomId] = {
+			players: data.players,
+			turn: 0,
+			winner: null,
+			vsComputer: data.vsComputer,
+			timeControl: data.timeControl,
+			fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		};
+		games[data.roomId].players = data.players;
+		io.in(data.roomId).emit("refreshGame");
 	});
 
 	socket.on("cancelSearch", (username) => {

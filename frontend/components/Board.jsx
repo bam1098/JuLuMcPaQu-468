@@ -259,6 +259,7 @@ export default function Board({
 			</div>
 			<Chessboard
 				position={fen}
+				arePremovesAllowed={true}
 				onMouseOverSquare={onMouseOverSquare}
 				onMouseOutSquare={onMouseOutSquare}
 				onSquareClick={onSquareClick}

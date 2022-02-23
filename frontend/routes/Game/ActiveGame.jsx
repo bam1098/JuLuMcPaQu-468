@@ -8,6 +8,7 @@ import {
 	Divider,
 	Group,
 	ScrollArea,
+	Text,
 	TextInput,
 } from "@mantine/core";
 import Board from "../../components/Board";
@@ -26,6 +27,8 @@ export default function ActiveGame({ socket }) {
 	const [gameEnded, setGameEnded] = useState(false);
 	const [modalOpened, setModalOpened] = useState(false);
 	const [rematchRequestSent, setRematchRequestSent] = useState(false);
+	const [rematchRequestReceived, setRematchRequestReceived] = useState(false);
+	const [rematchRequestDeclined, setrematchRequestDeclined] = useState(false);
 	const [drawOfferSent, setDrawOfferSent] = useState(false);
 	const [drawOfferReceived, setDrawOfferReceived] = useState(false);
 	const [chessboardSize, setChessboardSize] = useState(undefined);
@@ -97,6 +100,18 @@ export default function ActiveGame({ socket }) {
 			setDrawOfferReceived(false);
 		});
 
+		socket.on("rematchRequested", () => {
+			setRematchRequestReceived(true);
+		});
+
+		socket.on("rematchRequestDeclined", () => {
+			setrematchRequestDeclined(true);
+		});
+
+		socket.on("refreshGame", () => {
+			location.reload();
+		});
+
 		return () => {
 			window.removeEventListener("resize", handleResize);
 			socket.off();
@@ -104,12 +119,24 @@ export default function ActiveGame({ socket }) {
 	}, []);
 
 	const sendRematchRequest = () => {
-		if (rematchRequestSent) {
-			setRematchRequestSent(false);
-			socket.emit("cancelRematchRequest");
+		if (rematchRequestReceived) {
+			let data = gameState;
+			for (let key of Object.keys(data.players)) {
+				if (data.players[key].color === "white") {
+					data.players[key].color = "black";
+				} else {
+					data.players[key].color = "white";
+				}
+			}
+			data.roomId = params.id;
+			socket.emit("restartGame", data);
 		} else {
 			setRematchRequestSent(true);
-			socket.emit("rematchRequest");
+			socket.emit("rematchRequest", {
+				roomId: `${params.id}-chat`,
+				username: user.username,
+				opponent,
+			});
 		}
 	};
 
@@ -159,11 +186,18 @@ export default function ActiveGame({ socket }) {
 		});
 	};
 
+	const declineRematch = () => {
+		socket.emit("declineRematchRequest", {
+			roomId: `${params.id}-chat`,
+			username: user.username,
+		});
+	};
+
 	const sendChat = (e) => {
 		e.preventDefault();
 		let chatMessage = e.target.elements.message.value.trim();
 		if (chatMessage !== "") {
-			const roomId = params.id;
+			const roomId = `${params.id}-chat`;
 			socket.emit("sendMessage", {
 				sender: user["username"],
 				message: chatMessage,
@@ -176,9 +210,13 @@ export default function ActiveGame({ socket }) {
 
 	const renderChat = () => {
 		return chatMessages.map((message, index) => (
-			<p key={index}>
+			<Text
+				key={index}
+				color={message.sender === "System" ? "dimmed" : ""}
+				component="p"
+			>
 				{message.sender}: <span>{message.message}</span>
-			</p>
+			</Text>
 		));
 	};
 
@@ -199,13 +237,19 @@ export default function ActiveGame({ socket }) {
 					style={{ width: "100%", height: "calc(100vh - 32px)" }}
 				>
 					<EndGameModal
+						gameState={gameState}
 						modalOpened={modalOpened}
 						setModalOpened={setModalOpened}
 						endResult={endResult}
 						sendRematchRequest={sendRematchRequest}
 						rematchRequestSent={rematchRequestSent}
+						rematchRequestReceived={rematchRequestReceived}
+						setRematchRequestReceived={setRematchRequestReceived}
+						rematchRequestDeclined={rematchRequestDeclined}
 						setRematchRequestSent={setRematchRequestSent}
+						declineRematch={declineRematch}
 						user={user}
+						socket={socket}
 						navigate={navigate}
 					/>
 					<div
@@ -247,17 +291,53 @@ export default function ActiveGame({ socket }) {
 							<>
 								<Group
 									spacing="xs"
-									noWrap={!drawOfferReceived}
+									noWrap={!drawOfferReceived && !rematchRequestReceived}
 									style={{ marginTop: "1rem" }}
 								>
 									{gameEnded ? (
 										<>
-											<Button variant="light" style={{ width: "50%" }}>
-												Rematch
-											</Button>
+											{rematchRequestReceived ? (
+												<>
+													<Button
+														variant="light"
+														style={{ width: "48%", padding: 0 }}
+														disabled={rematchRequestDeclined}
+														onClick={() => {
+															sendRematchRequest();
+														}}
+													>
+														Accept rematch
+													</Button>
+													<Button
+														variant="light"
+														disabled={rematchRequestDeclined}
+														style={{ width: "48%", padding: 0 }}
+														onClick={() => declineRematch()}
+													>
+														Decline rematch
+													</Button>
+												</>
+											) : (
+												<Button
+													variant="light"
+													disabled={
+														rematchRequestSent || rematchRequestDeclined
+													}
+													onClick={() => sendRematchRequest()}
+													style={{ width: "50%", padding: 0 }}
+												>
+													{rematchRequestDeclined
+														? "Request declined"
+														: rematchRequestSent
+														? "Request sent"
+														: "Rematch"}
+												</Button>
+											)}
 											<Button
 												variant="light"
-												style={{ width: "50%" }}
+												style={{
+													width: rematchRequestReceived ? "100%" : "50%",
+												}}
 												onClick={() => navigate("/game/create")}
 											>
 												New game
