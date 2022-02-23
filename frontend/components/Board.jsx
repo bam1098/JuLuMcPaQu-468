@@ -15,6 +15,7 @@ export default function Board({
 	setGameState,
 	fen,
 	setFen,
+	setFenHistory,
 	socket,
 	roomId,
 	user,
@@ -156,6 +157,7 @@ export default function Board({
 				move: { sourceSquare, targetSquare },
 			});
 			setFen(game.fen());
+			setFenHistory((previousFens) => [...previousFens, game.fen()]);
 			if (game.game_over()) {
 				handleGameOver();
 			} else {
@@ -168,6 +170,7 @@ export default function Board({
 				move: { sourceSquare, targetSquare },
 			});
 			setFen(game.fen());
+			setFenHistory((previousFens) => [...previousFens, game.fen()]);
 			if (game.game_over()) {
 				handleGameOver();
 			}
@@ -198,6 +201,7 @@ export default function Board({
 			});
 		}
 		setFen(game.fen());
+		setFenHistory((previousFens) => [...previousFens, game.fen()]);
 		if (game.game_over()) {
 			handleGameOver();
 		}
@@ -214,6 +218,7 @@ export default function Board({
 			}
 			game.load(gameState.fen);
 			setFen(gameState.fen);
+			setFenHistory((previousFens) => [...previousFens, game.fen()]);
 			setBoardOrientation(gameState.players[user["username"]].color);
 			if (
 				gameState &&
@@ -235,6 +240,7 @@ export default function Board({
 				handleSoundPlay(move);
 			});
 			setFen(game.fen());
+			setFenHistory((previousFens) => [...previousFens, game.fen()]);
 		});
 
 		return () => socket.off();
@@ -259,6 +265,7 @@ export default function Board({
 			</div>
 			<Chessboard
 				position={fen}
+				arePiecesDraggable={fen === game.fen()}
 				arePremovesAllowed={true}
 				onMouseOverSquare={onMouseOverSquare}
 				onMouseOutSquare={onMouseOutSquare}

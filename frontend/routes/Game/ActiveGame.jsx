@@ -11,6 +11,12 @@ import {
 	Text,
 	TextInput,
 } from "@mantine/core";
+import {
+	IoPlaySkipForward,
+	IoPlaySkipBack,
+	IoPlayForward,
+	IoPlayBack,
+} from "react-icons/io5";
 import Board from "../../components/Board";
 import jwt_decode from "jwt-decode";
 import EndGameModal from "../../components/EndGameModal";
@@ -21,6 +27,7 @@ export default function ActiveGame({ socket }) {
 	const [game, setGame] = useState(new Chess());
 	const [gameState, setGameState] = useState({});
 	const [fen, setFen] = useState(game.fen());
+	const [fenHistory, setFenHistory] = useState([]);
 	const [opponent, setOpponent] = useState("");
 	const [endResult, setEndResult] = useState({});
 	const [chatMessages, setChatMessages] = useState([]);
@@ -42,10 +49,16 @@ export default function ActiveGame({ socket }) {
 	);
 
 	const chatViewport = useRef();
+	const historyViewport = useRef();
 	const containerRef = useRef();
 	const scrollToBottom = () =>
 		chatViewport.current.scrollTo({
 			top: chatViewport.current.scrollHeight,
+			behavior: "smooth",
+		});
+	const scrollToHistoryBottom = () =>
+		historyViewport.current.scrollTo({
+			top: historyViewport.current.scrollHeight,
 			behavior: "smooth",
 		});
 
@@ -117,6 +130,10 @@ export default function ActiveGame({ socket }) {
 			socket.off();
 		};
 	}, []);
+
+	useEffect(() => {
+		scrollToHistoryBottom();
+	}, [fenHistory]);
 
 	const sendRematchRequest = () => {
 		if (rematchRequestReceived) {
@@ -220,6 +237,57 @@ export default function ActiveGame({ socket }) {
 		));
 	};
 
+	const renderHistory = () => {
+		let gameHistory = game.history();
+		let finalHistory = [];
+		for (let i = 0; i < gameHistory.length; i += 2) {
+			try {
+				finalHistory.push([
+					{ move: gameHistory[i], moveIndex: i },
+					{ move: gameHistory[i + 1], moveIndex: i + 1 },
+				]);
+			} catch {
+				finalHistory.push([gameHistory[i]]);
+			}
+		}
+		return finalHistory.map((turn, index) => (
+			<Group key={index} position="left" noWrap spacing={0}>
+				<Text component="p" style={{ width: "10%" }}>
+					{index + 1}.
+				</Text>
+
+				<Button
+					variant="subtle"
+					style={{
+						width: "45%",
+						backgroundColor:
+							fenHistory.indexOf(fen) === turn[0].moveIndex + 1
+								? "rgba(25, 113, 194, 0.35)"
+								: "",
+					}}
+					onClick={() => setFen(fenHistory[turn[0].moveIndex + 1])}
+				>
+					{turn[0].move}
+				</Button>
+				{turn[1].move !== undefined && (
+					<Button
+						variant="subtle"
+						style={{
+							width: "45%",
+							backgroundColor:
+								fenHistory.indexOf(fen) === turn[1].moveIndex + 1
+									? "rgba(25, 113, 194, 0.35)"
+									: "",
+						}}
+						onClick={() => setFen(fenHistory[turn[1].moveIndex + 1])}
+					>
+						{turn[1].move}
+					</Button>
+				)}
+			</Group>
+		));
+	};
+
 	return (
 		<>
 			<div
@@ -264,6 +332,7 @@ export default function ActiveGame({ socket }) {
 							setGameState={setGameState}
 							fen={fen}
 							setFen={setFen}
+							setFenHistory={setFenHistory}
 							socket={socket}
 							roomId={params.id}
 							user={user}
@@ -273,8 +342,50 @@ export default function ActiveGame({ socket }) {
 						/>
 					</div>
 					<Card className="chat-card">
-						<h2>Chat</h2>
+						<Text style={{ fontSize: "1.5em", fontWeight: "bold" }}>
+							History
+						</Text>
 						<Divider />
+						<ScrollArea
+							style={{ height: "150px" }}
+							viewportRef={historyViewport}
+						>
+							{renderHistory()}
+						</ScrollArea>
+						<Divider />
+						<Group>
+							<Button variant="subtle" onClick={() => setFen(fenHistory[0])}>
+								<IoPlayBack />
+							</Button>
+							<Button
+								variant="subtle"
+								onClick={() => {
+									if (fenHistory.indexOf(fen) !== 0) {
+										setFen(fenHistory[fenHistory.indexOf(fen) - 1]);
+									}
+								}}
+							>
+								<IoPlaySkipBack />
+							</Button>
+							<Button
+								variant="subtle"
+								onClick={() => {
+									if (fenHistory.indexOf(fen) !== fenHistory.length - 1) {
+										setFen(fenHistory[fenHistory.indexOf(fen) + 1]);
+									}
+								}}
+							>
+								<IoPlaySkipForward />
+							</Button>
+							<Button
+								variant="subtle"
+								onClick={() => setFen(fenHistory[fenHistory.length - 1])}
+							>
+								<IoPlayForward />
+							</Button>
+						</Group>
+						<Divider />
+						<Text style={{ fontSize: "1.5em", fontWeight: "bold" }}>Chat</Text>
 						<ScrollArea style={{ height: "250px" }} viewportRef={chatViewport}>
 							{renderChat()}
 						</ScrollArea>
