@@ -309,7 +309,9 @@ io.on("connection", (socket) => {
 
 	socket.on("restartGame", (data) => {
 		for (let key of Object.keys(data.players)) {
-			io.sockets.sockets.get(data.players[key].id).join(data.roomId);
+			if (key !== "Computer") {
+				io.sockets.sockets.get(data.players[key].id).join(data.roomId);
+			}
 		}
 		games[data.roomId] = {
 			players: data.players,

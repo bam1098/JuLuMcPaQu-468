@@ -65,7 +65,9 @@ export default function ActiveGame({ socket }) {
 	useEffect(() => {
 		function handleResize() {
 			const display = containerRef.current;
-			setChessboardSize(display.offsetWidth - 100);
+			setChessboardSize(
+				Math.min(display.offsetWidth - 100, display.offsetHeight - 100)
+			);
 		}
 		window.addEventListener("resize", handleResize);
 		handleResize();
@@ -136,7 +138,7 @@ export default function ActiveGame({ socket }) {
 	}, [fenHistory]);
 
 	const sendRematchRequest = () => {
-		if (rematchRequestReceived) {
+		if (rematchRequestReceived || opponent === "Computer") {
 			let data = gameState;
 			for (let key of Object.keys(data.players)) {
 				if (data.players[key].color === "white") {
@@ -357,7 +359,7 @@ export default function ActiveGame({ socket }) {
 							{renderHistory()}
 						</ScrollArea>
 						<Divider />
-						<Group>
+						<Group noWrap>
 							<Button variant="subtle" onClick={() => setFen(fenHistory[0])}>
 								<IoPlayBack />
 							</Button>
