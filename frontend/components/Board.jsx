@@ -101,8 +101,8 @@ export default function Board({
 			game.insufficient_material()
 		) {
 			payload = {
-				game: gameState,
 				roomId,
+				game: gameState,
 				draw: true,
 				playerOne: user.username,
 				playerTwo: opponent,
@@ -126,9 +126,11 @@ export default function Board({
 				}
 			}
 			payload = {
-				game: gameState,
 				roomId,
+				game: gameState,
 				draw: false,
+				playerOne: user.username,
+				playerTwo: opponent,
 				winner,
 				loser,
 			};

@@ -164,19 +164,19 @@ io.on("connection", (socket) => {
 		games[move.roomId].turn += 1;
 	});
 
-	socket.on("saveGame", async (result) => {
-		console.log(result);
+	socket.on("saveGame", async (username, roomId, result) => {
 		const config = {
 			header: {
 				"Content-Type": "application/json",
 			},
 		};
+		const payload = { ...result, turns: Math.floor(games[roomId].turn / 2) };
 		try {
 			await axios.post(
 				"http://localhost:5000/user/edit",
 				{
-					username: result.user,
-					toEdit: { $push: { matchHistory: result.history } },
+					username: username,
+					toEdit: { $push: { matchHistory: payload } },
 				},
 				config
 			);
@@ -277,7 +277,6 @@ io.on("connection", (socket) => {
 			}
 		}
 		io.to(result.roomId).emit("endGame", result);
-		delete games[result.roomId];
 		io.in(result.roomId).socketsLeave(result.roomId);
 	});
 

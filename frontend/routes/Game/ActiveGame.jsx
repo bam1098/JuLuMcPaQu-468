@@ -101,13 +101,22 @@ export default function ActiveGame({ socket }) {
 			setGameEnded(true);
 			setModalOpened(true);
 			setEndResult(result);
-			socket.emit("saveGame", {
-				history: fenHistoryRef.current,
-				user: user.username,
-				opponent,
-				won: result?.winner === user.username,
-				draw: result.draw,
-			});
+			if (result.playerOne === "Computer" || result.playerTwo === "Computer") {
+				socket.emit("saveGame", user.username, params.id, {
+					history: fenHistoryRef.current,
+					playerOne: {
+						name: result.playerOne,
+						color: result.game.players[result.playerOne].color,
+					},
+					playerTwo: {
+						name: result.playerTwo,
+						color: result.game.players[result.playerTwo].color,
+					},
+					won: result?.winner === user.username,
+					draw: result.draw,
+					date: new Date().toString().split(" ").splice(1, 3).join(" "),
+				});
+			}
 		});
 
 		socket.on("receiveMessage", (chatMessage) => {
@@ -177,8 +186,8 @@ export default function ActiveGame({ socket }) {
 		const roomId = params.id;
 		if (drawOfferReceived) {
 			socket.emit("gameOver", {
-				game: gameState,
 				roomId,
+				game: gameState,
 				draw: true,
 				playerOne: user.username,
 				playerTwo: opponent,
@@ -211,8 +220,10 @@ export default function ActiveGame({ socket }) {
 	const resign = () => {
 		const roomId = params.id;
 		socket.emit("gameOver", {
-			game: gameState,
 			roomId,
+			game: gameState,
+			playerOne: user.username,
+			playerTwo: opponent,
 			draw: false,
 			winner: opponent,
 			loser: user.username,
