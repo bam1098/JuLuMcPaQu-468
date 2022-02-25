@@ -164,6 +164,27 @@ io.on("connection", (socket) => {
 		games[move.roomId].turn += 1;
 	});
 
+	socket.on("saveGame", async (result) => {
+		console.log(result);
+		const config = {
+			header: {
+				"Content-Type": "application/json",
+			},
+		};
+		try {
+			await axios.post(
+				"http://localhost:5000/user/edit",
+				{
+					username: result.user,
+					toEdit: { $push: { matchHistory: result.history } },
+				},
+				config
+			);
+		} catch (err) {
+			console.error(err);
+		}
+	});
+
 	socket.on("gameOver", async (result) => {
 		const config = {
 			header: {
@@ -181,7 +202,13 @@ io.on("connection", (socket) => {
 				try {
 					await axios.post(
 						"http://localhost:5000/user/edit",
-						{ username: human, toEdit: { $inc: { draws: 1 } } },
+						{
+							username: human,
+							toEdit: {
+								$inc: { draws: 1 },
+								$push: { matchHistory: result.history },
+							},
+						},
 						config
 					);
 				} catch (err) {

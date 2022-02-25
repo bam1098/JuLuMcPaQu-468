@@ -51,6 +51,8 @@ export default function ActiveGame({ socket }) {
 	const chatViewport = useRef();
 	const historyViewport = useRef();
 	const containerRef = useRef();
+	const fenHistoryRef = useRef(fenHistory);
+	const gameStateRef = useRef(gameState);
 	const scrollToBottom = () =>
 		chatViewport.current.scrollTo({
 			top: chatViewport.current.scrollHeight,
@@ -61,6 +63,11 @@ export default function ActiveGame({ socket }) {
 			top: historyViewport.current.scrollHeight,
 			behavior: "smooth",
 		});
+
+	useEffect(() => {
+		fenHistoryRef.current = fenHistory;
+		gameStateRef.current = gameState;
+	});
 
 	useEffect(() => {
 		function handleResize() {
@@ -94,6 +101,13 @@ export default function ActiveGame({ socket }) {
 			setGameEnded(true);
 			setModalOpened(true);
 			setEndResult(result);
+			socket.emit("saveGame", {
+				history: fenHistoryRef.current,
+				user: user.username,
+				opponent,
+				won: result?.winner === user.username,
+				draw: result.draw,
+			});
 		});
 
 		socket.on("receiveMessage", (chatMessage) => {

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Text } from "@mantine/core";
+import { Text, UnstyledButton } from "@mantine/core";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
 
@@ -40,8 +40,8 @@ export default function Profile() {
 
 	const matchHistory =
 		user.matchHistory && user.matchHistory.length ? (
-			user.matchHistory.map((match) => {
-				<Text>Match example</Text>;
+			user.matchHistory.map((match, index) => {
+				return <Text key={index}>{match}</Text>;
 			})
 		) : (
 			<Text>No match history</Text>
