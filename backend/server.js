@@ -7,11 +7,13 @@ app.use(cors());
 app.use(express.json());
 app.use(require("./routes/auth"));
 app.use("/profile", require("./routes/profile"));
+app.use("/game", require("./routes/game"));
 // get driver connection
 const connectDB = require("./db/conn");
 const errorHandler = require("./middleware/error");
 const crypto = require("crypto");
 const axios = require("axios");
+const mongoose = require("mongoose");
 
 connectDB();
 
@@ -164,25 +166,113 @@ io.on("connection", (socket) => {
 		games[move.roomId].turn += 1;
 	});
 
-	socket.on("saveGame", async (username, roomId, result) => {
+	socket.on("saveGame", async (roomId, result) => {
 		const config = {
 			header: {
 				"Content-Type": "application/json",
 			},
 		};
-		const payload = { ...result, turns: Math.floor(games[roomId].turn / 2) };
+		const payload = {
+			turns: Math.round(games[roomId].turn / 2),
+		};
+		const playerOneReq = JSON.stringify({
+			username: result.playerOne.name,
+			fields: "_id username",
+		});
+		const playerTwoReq = JSON.stringify({
+			username: result.playerTwo.name,
+			fields: "_id username",
+		});
 		try {
+			const playerOne = await axios({
+				method: "get",
+				url: "http://localhost:5000/user/get",
+				headers: config.header,
+				data: playerOneReq,
+			});
+			const playerTwo = await axios({
+				method: "get",
+				url: "http://localhost:5000/user/get",
+				headers: config.header,
+				data: playerTwoReq,
+			});
+			if (result.playerOne.color === "white") {
+				payload.playerWhite = {
+					_id: mongoose.Types.ObjectId(playerOne.data.user._id),
+					username: playerOne.data.user.username,
+				};
+				payload.playerBlack = {
+					_id: mongoose.Types.ObjectId(playerTwo.data.user._id),
+					username: playerTwo.data.user.username,
+				};
+			} else {
+				payload.playerWhite = {
+					_id: mongoose.Types.ObjectId(playerTwo.data.user._id),
+					username: playerTwo.data.user.username,
+				};
+				payload.playerBlack = {
+					_id: mongoose.Types.ObjectId(playerOne.data.user._id),
+					username: playerOne.data.user.username,
+				};
+			}
+			if (result.winner === playerOne.data.user.username) {
+				payload.winner = {
+					_id: mongoose.Types.ObjectId(playerOne.data.user._id),
+					username: playerOne.data.user.username,
+				};
+			} else {
+				payload.winner = {
+					_id: mongoose.Types.ObjectId(playerTwo.data.user._id),
+					username: playerTwo.data.user.username,
+				};
+			}
+
+			if (result.draw) {
+				payload.draw = true;
+			}
+			payload.history = result.history;
+			payload.date = new Date();
+			const savedGame = await axios.post(
+				"http://localhost:5000/game/save",
+				{
+					...payload,
+				},
+				config
+			);
 			await axios.post(
 				"http://localhost:5000/user/edit",
 				{
-					username: username,
-					toEdit: { $push: { matchHistory: payload } },
+					username: result.playerOne.name,
+					toEdit: {
+						$push: {
+							matchHistory: {
+								$each: [savedGame.data._id],
+								$position: 0,
+							},
+						},
+					},
+				},
+				config
+			);
+			await axios.post(
+				"http://localhost:5000/user/edit",
+				{
+					username: result.playerTwo.name,
+					toEdit: {
+						$push: {
+							matchHistory: {
+								$each: [savedGame.data._id],
+								$position: 0,
+							},
+						},
+					},
 				},
 				config
 			);
 		} catch (err) {
 			console.error(err);
 		}
+		delete games[roomId];
 	});
 
 	socket.on("gameOver", async (result) => {
@@ -277,6 +367,7 @@ io.on("connection", (socket) => {
 			}
 		}
 		io.to(result.roomId).emit("endGame", result);
+		socket.emit("saveGame", result);
 		io.in(result.roomId).socketsLeave(result.roomId);
 	});
 

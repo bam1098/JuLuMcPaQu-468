@@ -1,6 +1,7 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Route, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
+	Anchor,
 	Avatar,
 	Card,
 	ColorSwatch,
@@ -19,8 +20,16 @@ export default function Profile() {
 	let params = useParams();
 	let navigate = useNavigate();
 	const [user, setUser] = useState({});
+	const [matchHistory, setMatchHistory] = useState([]);
 	const theme = useMantineTheme();
-
+	let config = {
+		method: "get",
+		url: "http://localhost:5000/profile",
+		headers: {
+			"Content-Type": "appliction/json",
+			Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+		},
+	};
 	useEffect(() => {
 		let isCancelled = false;
 		if (localStorage.getItem("authToken")) {
@@ -29,22 +38,13 @@ export default function Profile() {
 				navigate("/");
 			} else {
 				const fetchData = async () => {
-					const config = {
-						method: "get",
-						url: "http://localhost:5000/profile",
-						headers: {
-							"Content-Type": "appliction/json",
-							Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-						},
-					};
-
 					try {
 						const { data } = await axios(config);
 						if (!isCancelled) {
 							setUser(data.data);
 						}
 					} catch (error) {
-						console.log(error);
+						console.error(error);
 					}
 				};
 				fetchData();
@@ -53,33 +53,66 @@ export default function Profile() {
 
 		return () => (isCancelled = true);
 	}, []);
-	const matchHistory = () => {
-		return user.matchHistory.map((match, index) => (
-			<tr key={index}>
+
+	useEffect(() => {
+		let isCancelled = false;
+		const fetchMatchHistory = async () => {
+			if (user.matchHistory !== undefined) {
+				try {
+					const config = {
+						header: {
+							"Content-Type": "application/json",
+						},
+					};
+					const matchData = await axios.post(
+						"http://localhost:5000/game/getAllUser",
+						{
+							idList: user.matchHistory,
+						},
+						config
+					);
+					if (!isCancelled) {
+						const sortedGames = matchData.data.games.sort(
+							(a, b) => new Date(b.date) - new Date(a.date)
+						);
+						setMatchHistory(sortedGames);
+					}
+				} catch (error) {
+					console.error(error);
+				}
+			}
+		};
+		fetchMatchHistory();
+		return () => (isCancelled = true);
+	}, [user]);
+
+	const matchTable = () => {
+		return matchHistory?.map((match) => (
+			<tr
+				key={match._id}
+				onClick={() => navigate(`/${user?.username}/analyze/${match._id}`)}
+				style={{ cursor: "pointer" }}
+			>
 				<td>TODO</td>
 				<td>
 					<Group direction="column" spacing={0}>
 						<Group>
 							<ColorSwatch size={12} color={"white"} />
-							<Text>
-								{match.playerOne.color === "white"
-									? match.playerOne.name
-									: match.playerTwo.name}
-							</Text>
+							<Text>{match.playerWhite.username}</Text>
 						</Group>
 						<Group>
 							<ColorSwatch size={12} color={"#868484"} />
-							<Text>
-								{match.playerTwo.color === "black"
-									? match.playerTwo.name
-									: match.playerOne.name}
-							</Text>
+							<Text>{match.playerBlack.username}</Text>
 						</Group>
 					</Group>
 				</td>
-				<td>{match.draw ? "Draw" : match.won ? "Won" : "Lost"}</td>
+				<td>
+					{match.draw ? "Draw" : match.winner._id === user._id ? "Won" : "Lost"}
+				</td>
 				<td>{match.turns}</td>
-				<td>{match.date}</td>
+				<td>
+					{new Date(match.date).toString().split(" ").splice(1, 3).join(" ")}
+				</td>
 			</tr>
 		));
 	};
@@ -125,7 +158,9 @@ export default function Profile() {
 					</div>
 					<Divider />
 					<div className={styles.profile_body}>
-						{user.matchHistory && user.matchHistory.length ? (
+						{user.matchHistory &&
+						user.matchHistory.length &&
+						matchHistory.length !== 0 ? (
 							<div style={{ width: 500 }}>
 								<Table highlightOnHover>
 									<thead>
@@ -137,11 +172,16 @@ export default function Profile() {
 											<th>Date</th>
 										</tr>
 									</thead>
-									<tbody>{matchHistory()}</tbody>
+									<tbody>{matchTable()}</tbody>
 								</Table>
 							</div>
 						) : (
-							<Text>No match history</Text>
+							<Group direction="column" spacing={0} position="center">
+								<Text>No match history</Text>
+								<Anchor component={Link} to={`/game/create`}>
+									Play a game?
+								</Anchor>
+							</Group>
 						)}
 					</div>
 				</div>

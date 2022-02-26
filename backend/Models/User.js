@@ -37,10 +37,7 @@ const UserSchema = new mongoose.Schema(
 			type: Number,
 			default: 0,
 		},
-		matchHistory: {
-			type: Array,
-			default: [],
-		},
+		matchHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "Game" }],
 	},
 	{
 		collection: "Users",

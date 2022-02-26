@@ -101,8 +101,11 @@ export default function ActiveGame({ socket }) {
 			setGameEnded(true);
 			setModalOpened(true);
 			setEndResult(result);
-			if (result.playerOne === "Computer" || result.playerTwo === "Computer") {
-				socket.emit("saveGame", user.username, params.id, {
+		});
+
+		socket.on("saveGame", (result) => {
+			if (result.playerOne !== "Computer" && result.playerTwo !== "Computer") {
+				socket.emit("saveGame", params.id, {
 					history: fenHistoryRef.current,
 					playerOne: {
 						name: result.playerOne,
@@ -112,7 +115,7 @@ export default function ActiveGame({ socket }) {
 						name: result.playerTwo,
 						color: result.game.players[result.playerTwo].color,
 					},
-					won: result?.winner === user.username,
+					winner: result?.winner,
 					draw: result.draw,
 					date: new Date().toString().split(" ").splice(1, 3).join(" "),
 				});

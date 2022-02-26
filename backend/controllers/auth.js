@@ -61,6 +61,23 @@ exports.edit = async (req, res, next) => {
 	}
 };
 
+exports.get = async (req, res, next) => {
+	let { username, fields } = req.body;
+	if (fields === undefined) {
+		fields = "";
+	}
+	try {
+		const user = await User.findOne({ username }).select(fields);
+
+		res.status(200).json({
+			success: true,
+			user,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
 const sendToken = (user, statusCode, res) => {
 	// Create token
 	const token = user.getSignedToken();
