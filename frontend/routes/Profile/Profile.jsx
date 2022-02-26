@@ -1,8 +1,9 @@
-import { useParams, useNavigate, Route, Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
 	Anchor,
 	Avatar,
+	Button,
 	Card,
 	ColorSwatch,
 	Divider,
@@ -128,63 +129,79 @@ export default function Profile() {
 			}}
 		>
 			<Card width={800}>
-				<div className="profile-container">
-					<div className={styles.profile_header}>
-						<Group>
-							<Avatar color="blue" size="xl">
-								{user.username?.charAt(0)}
-							</Avatar>
-							<Group direction="column" spacing={0}>
-								<Title component="h2" style={{ fontSize: "24px" }}>
-									{user.username}
-								</Title>
-								<Text>{user.email}</Text>
-								<Group spacing={10}>
-									<Text>
-										{user.wins}{" "}
-										<span style={{ color: theme.colors["green"][7] }}>W</span>
-									</Text>
-									<Text>
-										{user.losses}{" "}
-										<span style={{ color: theme.colors["red"][7] }}>L</span>
-									</Text>
-									<Text>
-										{user.draws}{" "}
-										<span style={{ color: theme.colors["gray"][6] }}>D</span>
-									</Text>
+				{user.username ? (
+					<div className="profile-container">
+						<div className={styles.profile_header}>
+							<Group>
+								<Avatar color="blue" size="xl">
+									{user.username?.charAt(0)}
+								</Avatar>
+								<Group direction="column" spacing={0}>
+									<Title component="h2" style={{ fontSize: "24px" }}>
+										{user.username}
+									</Title>
+									<Text>{user.email}</Text>
+									<Group spacing={10}>
+										<Text>
+											{user.wins}{" "}
+											<span style={{ color: theme.colors["green"][7] }}>W</span>
+										</Text>
+										<Text>
+											{user.losses}{" "}
+											<span style={{ color: theme.colors["red"][7] }}>L</span>
+										</Text>
+										<Text>
+											{user.draws}{" "}
+											<span style={{ color: theme.colors["gray"][6] }}>D</span>
+										</Text>
+									</Group>
 								</Group>
 							</Group>
+						</div>
+						<Divider />
+						<div className={styles.profile_body}>
+							{user.matchHistory &&
+							user.matchHistory.length &&
+							matchHistory.length !== 0 ? (
+								<div style={{ width: 500 }}>
+									<Table highlightOnHover>
+										<thead>
+											<tr>
+												<th>Format</th>
+												<th>Players</th>
+												<th>Result</th>
+												<th>Moves</th>
+												<th>Date</th>
+											</tr>
+										</thead>
+										<tbody>{matchTable()}</tbody>
+									</Table>
+								</div>
+							) : (
+								<Group direction="column" spacing={0} position="center">
+									<Text>No match history</Text>
+									<Anchor component={Link} to={`/game/create`}>
+										Play a game?
+									</Anchor>
+								</Group>
+							)}
+						</div>
+					</div>
+				) : (
+					<div className="profile-container">
+						<Group direction="column" position="center">
+							<Text style={{ fontSize: "1.5rem" }}>Please log in again</Text>
+							<Button
+								onClick={() => {
+									localStorage.removeItem("authToken");
+									window.location = "/login";
+								}}
+							>
+								Log out
+							</Button>
 						</Group>
 					</div>
-					<Divider />
-					<div className={styles.profile_body}>
-						{user.matchHistory &&
-						user.matchHistory.length &&
-						matchHistory.length !== 0 ? (
-							<div style={{ width: 500 }}>
-								<Table highlightOnHover>
-									<thead>
-										<tr>
-											<th>Format</th>
-											<th>Players</th>
-											<th>Result</th>
-											<th>Moves</th>
-											<th>Date</th>
-										</tr>
-									</thead>
-									<tbody>{matchTable()}</tbody>
-								</Table>
-							</div>
-						) : (
-							<Group direction="column" spacing={0} position="center">
-								<Text>No match history</Text>
-								<Anchor component={Link} to={`/game/create`}>
-									Play a game?
-								</Anchor>
-							</Group>
-						)}
-					</div>
-				</div>
+				)}
 			</Card>
 		</div>
 	);

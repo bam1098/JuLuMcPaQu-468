@@ -45,7 +45,7 @@ const GameSchema = new mongoose.Schema(
 			required: [true, "Turn count must be supplied"],
 		},
 		history: {
-			type: Array,
+			type: String,
 			required: [true, "Match history must be specified"],
 		},
 	},

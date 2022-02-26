@@ -38,3 +38,16 @@ exports.getAllUser = async (req, res, next) => {
 		next(new ErrorResponse(err.message, 500));
 	}
 };
+
+exports.get = async (req, res, next) => {
+	const { id } = req.body;
+	try {
+		const game = await Game.findById(id);
+		res.status(200).json({
+			success: true,
+			game,
+		});
+	} catch (err) {
+		next(new ErrorResponse(err.message, 500));
+	}
+};

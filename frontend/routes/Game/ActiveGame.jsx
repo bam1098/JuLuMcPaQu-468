@@ -51,7 +51,7 @@ export default function ActiveGame({ socket }) {
 	const chatViewport = useRef();
 	const historyViewport = useRef();
 	const containerRef = useRef();
-	const fenHistoryRef = useRef(fenHistory);
+	const gameRef = useRef(game);
 	const gameStateRef = useRef(gameState);
 	const scrollToBottom = () =>
 		chatViewport.current.scrollTo({
@@ -65,7 +65,7 @@ export default function ActiveGame({ socket }) {
 		});
 
 	useEffect(() => {
-		fenHistoryRef.current = fenHistory;
+		gameRef.current = game;
 		gameStateRef.current = gameState;
 	});
 
@@ -106,7 +106,7 @@ export default function ActiveGame({ socket }) {
 		socket.on("saveGame", (result) => {
 			if (result.playerOne !== "Computer" && result.playerTwo !== "Computer") {
 				socket.emit("saveGame", params.id, {
-					history: fenHistoryRef.current,
+					history: gameRef.current.pgn(),
 					playerOne: {
 						name: result.playerOne,
 						color: result.game.players[result.playerOne].color,

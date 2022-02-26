@@ -36,7 +36,7 @@ export default function App() {
 					path="/puzzles/start"
 					element={<CreatePuzzleGame socket={socket} />}
 				/>
-				<Route path="/:username/analyze/:index" element={<AnalyzeGame />} />
+				<Route path="/:username/analyze/:gameId" element={<AnalyzeGame />} />
 			</Routes>
 		</>
 	);
