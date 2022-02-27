@@ -22,10 +22,15 @@ export default function Board({
 	opponent,
 	setOpponent,
 	boardWidth,
+	moveSquares,
+	setMoveSquares,
+	checkSquare,
+	setCheckSquare,
 }) {
 	const [boardOrientation, setBoardOrientation] = useState("white");
 	const [rightClickedSquares, setRightClickedSquares] = useState({});
 	const [optionSquares, setOptionSquares] = useState({});
+
 	const [playMoveSound] = useSound(moveAudioFile);
 	const [playCaptureSound] = useSound(captureAudioFile);
 
@@ -138,6 +143,22 @@ export default function Board({
 		socket.emit("gameOver", payload);
 	}
 
+	function getPiecePosition(game, piece) {
+		return []
+			.concat(...game.board())
+			.map((p, index) => {
+				if (p !== null && p.type === piece.type && p.color === piece.color) {
+					return index;
+				}
+			})
+			.filter(Number.isInteger)
+			.map((piece_index) => {
+				const row = "abcdefgh"[piece_index % 8];
+				const column = Math.ceil((64 - piece_index) / 8);
+				return row + column;
+			});
+	}
+
 	function onDrop(sourceSquare, targetSquare) {
 		let move = null;
 		if (game.turn() !== gameState.players[user["username"]].color.charAt(0))
@@ -150,8 +171,21 @@ export default function Board({
 			});
 		});
 		if (move === null) return false; // illegal move
+		setMoveSquares({
+			[sourceSquare]: { backgroundColor: "#cdd26a" },
+			[targetSquare]: { backgroundColor: "#cdd26a" },
+		});
 		if (move.captured) playCaptureSound();
 		else playMoveSound();
+		if (game.in_check()) {
+			setCheckSquare({
+				[getPiecePosition(game, { type: "k", color: game.turn() })]: {
+					backgroundColor: "#ce3724",
+				},
+			});
+		} else {
+			setCheckSquare({});
+		}
 		if (gameState.vsComputer === true) {
 			socket.emit("saveMove", {
 				roomId,
@@ -196,6 +230,19 @@ export default function Board({
 				if (move.captured) playCaptureSound();
 				else playMoveSound();
 			});
+			setMoveSquares({
+				[fromSquare.toLowerCase()]: { backgroundColor: "#cdd26a" },
+				[toSquare.toLowerCase()]: { backgroundColor: "#cdd26a" },
+			});
+			if (game.in_check()) {
+				setCheckSquare({
+					[getPiecePosition(game, { type: "k", color: game.turn() })]: {
+						backgroundColor: "#ce3724",
+					},
+				});
+			} else {
+				setCheckSquare({});
+			}
 			socket.emit("saveMove", {
 				roomId,
 				fen: game.fen(),
@@ -233,6 +280,7 @@ export default function Board({
 
 		socket.on("opponentMoved", (moveMade) => {
 			let move = null;
+			console.log(moveMade);
 			safeGameMutate((game) => {
 				move = game.move({
 					from: moveMade.move.sourceSquare,
@@ -241,6 +289,23 @@ export default function Board({
 				});
 				handleSoundPlay(move);
 			});
+			setMoveSquares({
+				[moveMade.move.sourceSquare]: {
+					backgroundColor: "#cdd26a",
+				},
+				[moveMade.move.targetSquare]: {
+					backgroundColor: "#cdd26a",
+				},
+			});
+			if (game.in_check()) {
+				setCheckSquare({
+					[getPiecePosition(game, { type: "k", color: game.turn() })]: {
+						backgroundColor: "#ce3724",
+					},
+				});
+			} else {
+				setCheckSquare({});
+			}
 			setFen(game.fen());
 			setFenHistory((previousFens) => [...previousFens, game.fen()]);
 		});
@@ -281,6 +346,8 @@ export default function Board({
 					boxShadow: "0 5px 15px rgba(0, 0, 0, 0.5)",
 				}}
 				customSquareStyles={{
+					...moveSquares,
+					...checkSquare,
 					...optionSquares,
 					...rightClickedSquares,
 				}}
