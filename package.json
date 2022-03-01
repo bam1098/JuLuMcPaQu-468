@@ -28,10 +28,10 @@
 		"react-dom": "^17.0.2",
 		"react-icons": "^4.3.1",
 		"react-router-dom": "^6.2.1",
-		"react-timer-hook": "^3.0.5",
 		"socket.io": "^4.4.1",
 		"socket.io-client": "^4.4.1",
-		"use-sound": "^4.0.1"
+		"use-sound": "^4.0.1",
+		"use-timer": "^2.0.1"
 	},
 	"devDependencies": {
 		"@vitejs/plugin-react": "^1.0.7",

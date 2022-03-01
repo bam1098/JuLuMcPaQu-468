@@ -7,6 +7,7 @@ import useSound from "use-sound";
 import moveAudioFile from "../assets/sounds/Move.mp3";
 import captureAudioFile from "../assets/sounds/Capture.mp3";
 import gameStartAudioFile from "../assets/sounds/GameStart.mp3";
+import PlayerTimer from "./PlayerTimer";
 
 export default function Board({
 	game,
@@ -30,6 +31,15 @@ export default function Board({
 	const [boardOrientation, setBoardOrientation] = useState("white");
 	const [rightClickedSquares, setRightClickedSquares] = useState({});
 	const [optionSquares, setOptionSquares] = useState({});
+	const [expiryTimestamp, setExpiryTimestamp] = useState(null);
+	const [increment, setIncrement] = useState(0);
+	const [playerStartTurn, setPlayerStartTurn] = useState(0);
+	const [opponentStartTurn, setOpponentStartTurn] = useState(0);
+	const [playerEndTurn, setPlayerEndTurn] = useState(0);
+	const [opponentEndTurn, setOpponentEndTurn] = useState(0);
+	const [playerPauseAtStart, setPlayerPauseAtStart] = useState(false);
+	const [opponentPauseAtStart, setOpponentPauseAtStart] = useState(false);
+	const [outOfTime, setOutOfTime] = useState(1);
 
 	const [playMoveSound] = useSound(moveAudioFile);
 	const [playCaptureSound] = useSound(captureAudioFile);
@@ -171,6 +181,8 @@ export default function Board({
 			});
 		});
 		if (move === null) return false; // illegal move
+		setPlayerEndTurn((endTurn) => endTurn + 1);
+		setOpponentStartTurn((startTurn) => startTurn + 1);
 		setMoveSquares({
 			[sourceSquare]: { backgroundColor: "#cdd26a" },
 			[targetSquare]: { backgroundColor: "#cdd26a" },
@@ -269,6 +281,18 @@ export default function Board({
 			setFen(gameState.fen);
 			setFenHistory((previousFens) => [...previousFens, game.fen()]);
 			setBoardOrientation(gameState.players[user["username"]].color);
+			if (opponent !== "Computer") {
+				const time = gameState.timeControl.split("+")[0];
+				setIncrement(parseInt(gameState.timeControl.split("+")[1]));
+				setExpiryTimestamp(parseInt(time) * 60);
+				if (gameState.players[user.username].color.charAt(0) !== game.turn()) {
+					setPlayerPauseAtStart(true);
+					setOpponentStartTurn((previousStartTurn) => previousStartTurn + 1);
+				} else {
+					setPlayerStartTurn((previousStartTurn) => previousStartTurn + 1);
+					setOpponentPauseAtStart(true);
+				}
+			}
 			if (
 				gameState &&
 				gameState.vsComputer === true &&
@@ -280,7 +304,6 @@ export default function Board({
 
 		socket.on("opponentMoved", (moveMade) => {
 			let move = null;
-			console.log(moveMade);
 			safeGameMutate((game) => {
 				move = game.move({
 					from: moveMade.move.sourceSquare,
@@ -289,6 +312,9 @@ export default function Board({
 				});
 				handleSoundPlay(move);
 			});
+			// Signal the start of turn to unpause timer
+			setOpponentEndTurn((endTurn) => endTurn + 1);
+			setPlayerStartTurn((previousStartTurn) => previousStartTurn + 1);
 			setMoveSquares({
 				[moveMade.move.sourceSquare]: {
 					backgroundColor: "#cdd26a",
@@ -313,6 +339,21 @@ export default function Board({
 		return () => socket.off();
 	}, []);
 
+	useEffect(() => {
+		if (outOfTime === 0) {
+			const payload = {
+				roomId,
+				game: gameState,
+				draw: false,
+				playerOne: user.username,
+				playerTwo: opponent,
+				winner: opponent,
+				loser: user.username,
+			};
+			socket.emit("gameOver", payload);
+		}
+	}, [outOfTime]);
+
 	function handleSoundPlay(move) {
 		if (move && move.captured !== undefined) captureAudio.play();
 		else moveAudio.play();
@@ -321,13 +362,23 @@ export default function Board({
 	return (
 		<>
 			<div style={{ width: boardWidth, marginBottom: "1rem" }}>
-				<Group>
-					<Avatar color="blue" size="md">
-						{opponent.charAt(0)}
-					</Avatar>
-					<Text component="p" size="xl">
-						{opponent}
-					</Text>
+				<Group position="apart">
+					<Group>
+						<Avatar color="blue" size="md">
+							{opponent.charAt(0)}
+						</Avatar>
+						<Text component="p" size="xl">
+							{opponent}
+						</Text>
+					</Group>
+					<PlayerTimer
+						expiryTimestamp={expiryTimestamp}
+						startTurn={opponentStartTurn}
+						endTurn={opponentEndTurn}
+						increment={increment}
+						setOutOfTime={() => {}}
+						pauseAtStart={opponentPauseAtStart}
+					/>
 				</Group>
 			</div>
 			<Chessboard
@@ -354,13 +405,23 @@ export default function Board({
 				boardWidth={boardWidth}
 			/>
 			<div style={{ width: boardWidth, marginTop: "1rem" }}>
-				<Group>
-					<Avatar color="blue" size="md">
-						{user["username"].charAt(0)}
-					</Avatar>
-					<Text component="p" size="xl">
-						{user["username"]}
-					</Text>
+				<Group position="apart">
+					<Group>
+						<Avatar color="blue" size="md">
+							{user["username"].charAt(0)}
+						</Avatar>
+						<Text component="p" size="xl">
+							{user["username"]}
+						</Text>
+					</Group>
+					<PlayerTimer
+						expiryTimestamp={expiryTimestamp}
+						startTurn={playerStartTurn}
+						endTurn={playerEndTurn}
+						increment={increment}
+						setOutOfTime={setOutOfTime}
+						pauseAtStart={playerPauseAtStart}
+					/>
 				</Group>
 			</div>
 		</>
