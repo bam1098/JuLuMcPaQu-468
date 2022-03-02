@@ -31,18 +31,31 @@ http.listen(port, () => {
 });
 
 let games = {};
-let searchingPlayers = [];
+let searchingPlayers = {
+	"1+0": [],
+	"1+1": [],
+	"3+0": [],
+	"3+2": [],
+	"5+0": [],
+	"5+5": [],
+	"10+0": [],
+	"15+0": [],
+	"15+15": [],
+};
 io.on("connection", (socket) => {
 	console.log("New user connected");
 	socket.on("createRoom", (settings) => {
 		if (settings.gameType === "public") {
-			if (searchingPlayers.length === 0) {
-				searchingPlayers.push({ username: settings.username, socket });
+			if (searchingPlayers[settings.timeControl].length === 0) {
+				searchingPlayers[settings.timeControl].push({
+					username: settings.username,
+					socket,
+				});
 				socket.emit("findingOpponent");
 			} else {
 				const roomId = crypto.randomBytes(5).toString("hex");
 				socket.join(roomId);
-				const secondPlayer = searchingPlayers.pop();
+				const secondPlayer = searchingPlayers[settings.timeControl].pop();
 				secondPlayer.socket.join(roomId);
 				games[roomId] = {
 					players: {},
@@ -442,11 +455,11 @@ io.on("connection", (socket) => {
 		io.in(data.roomId).emit("refreshGame");
 	});
 
-	socket.on("cancelSearch", (username) => {
-		const removeIndex = searchingPlayers.findIndex(
-			(player) => player[username]
+	socket.on("cancelSearch", (query) => {
+		const removeIndex = searchingPlayers[query.timeControl].findIndex(
+			(player) => player[query.username]
 		);
-		searchingPlayers.splice(removeIndex, 1);
+		searchingPlayers[query.timeControl].splice(removeIndex, 1);
 	});
 
 	socket.on("disconnect", () => {

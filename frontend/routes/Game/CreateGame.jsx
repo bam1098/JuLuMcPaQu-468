@@ -55,7 +55,8 @@ export default function CreateGame({ socket }) {
 	};
 
 	const cancelSearch = () => {
-		socket.emit("cancelSearch", user.username);
+		let username = user.username;
+		socket.emit("cancelSearch", { username, timeControl });
 		setFindingOpponent(false);
 	};
 
