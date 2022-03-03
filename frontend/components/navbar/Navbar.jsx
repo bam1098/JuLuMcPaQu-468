@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useLayoutEffect } from "react";
 import {
 	ActionIcon,
 	AppShell,
@@ -38,7 +38,7 @@ export default function NewNav() {
 	const smallerThanSM = useMediaQuery("(max-width: 767px)");
 	const smallerThanLG = useMediaQuery("(max-width: 1200px)");
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (localStorage.getItem("authToken")) {
 			const decoded = jwt_decode(localStorage.getItem("authToken"));
 			setUsername(decoded.username);
@@ -201,6 +201,7 @@ export default function NewNav() {
 											variant="gradient"
 											gradient={{ from: "indigo", to: "cyan" }}
 											style={{ margin: 0 }}
+											onClick={() => setOpened((o) => !o)}
 										>
 											Log in
 										</Button>
@@ -211,6 +212,7 @@ export default function NewNav() {
 											to="/signup"
 											variant="gradient"
 											gradient={{ from: "indigo", to: "cyan" }}
+											onClick={() => setOpened((o) => !o)}
 										>
 											Sign up
 										</Button>
@@ -221,6 +223,7 @@ export default function NewNav() {
 										component={Link}
 										to={`/profile/${username}`}
 										style={{ width: "100%" }}
+										onClick={() => setOpened((o) => !o)}
 									>
 										<Group
 											position={`${
@@ -266,7 +269,7 @@ export default function NewNav() {
 									padding: "0 40px",
 									height: "60px",
 									position: "fixed",
-									backgroundColor: "#1A1B1E",
+									backgroundColor: dark ? "#1A1B1E" : "#F5F6F8",
 									borderBottom: "1px solid #2C2E33",
 								}}
 							>
@@ -308,7 +311,6 @@ export default function NewNav() {
 				>
 					<div
 						style={{
-							marginTop: smallerThanSM ? "60px" : "0",
 							width: "100%",
 							height: "100%",
 						}}

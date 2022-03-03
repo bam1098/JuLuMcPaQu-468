@@ -20,6 +20,7 @@ export default function CreateGame({ socket }) {
 	const [user, setUser] = useState(null);
 	const [opponent, setOpponent] = useState("player");
 	const [difficulty, setDifficulty] = useState(0);
+	const [timeControl, setTimeControl] = useState("5");
 	const [findingOpponent, setFindingOpponent] = useState(false);
 	const navigate = useNavigate();
 	useEffect(() => {
@@ -46,7 +47,7 @@ export default function CreateGame({ socket }) {
 		socket.emit("createRoom", {
 			gameType,
 			username: user["username"],
-			timeControl: "5",
+			timeControl: timeControl,
 			color: color,
 			opponent: opponent,
 			difficulty: difficulty,
@@ -54,7 +55,8 @@ export default function CreateGame({ socket }) {
 	};
 
 	const cancelSearch = () => {
-		socket.emit("cancelSearch", user.username);
+		let username = user.username;
+		socket.emit("cancelSearch", { username, timeControl });
 		setFindingOpponent(false);
 	};
 
@@ -88,7 +90,11 @@ export default function CreateGame({ socket }) {
 				</Modal>
 				<Group direction="row" position="center">
 					<form onSubmit={createRoom}>
-						<Group direction="row">
+						<Group
+							direction="row"
+							position="center"
+							style={{ width: "100%", padding: "0 0.5rem" }}
+						>
 							<SegmentedControl
 								value={gameType}
 								onChange={setGameType}
@@ -108,41 +114,68 @@ export default function CreateGame({ socket }) {
 											{ label: "Random", value: "random" },
 										]}
 									/>
-									<SegmentedControl
-										value={opponent}
-										onChange={setOpponent}
-										data={[
-											{ label: "Real player", value: "player" },
-											{ label: "Computer", value: "computer" },
-										]}
-									/>
+									<Group position="center" noWrap>
+										<SegmentedControl
+											value={opponent}
+											onChange={setOpponent}
+											data={[
+												{ label: "Player", value: "player" },
+												{ label: "Computer", value: "computer" },
+											]}
+										/>
+										{opponent === "computer" && gameType === "private" && (
+											<Select
+												placeholder="Choose difficulty"
+												value={difficulty}
+												onChange={setDifficulty}
+												data={[
+													{ value: 0, label: "Beginner" },
+													{ value: 1, label: "Easy" },
+													{ value: 2, label: "Medium" },
+													{ value: 3, label: "Hard" },
+													{ value: 4, label: "Expert" },
+												]}
+												transition="scale-y"
+												transitionDuration={120}
+												transitionTimingFunction="ease"
+												required
+											/>
+										)}
+									</Group>
 								</>
 							)}
-							{opponent === "computer" && gameType === "private" && (
-								<Select
-									placeholder="Choose difficulty"
-									value={difficulty}
-									onChange={setDifficulty}
-									data={[
-										{ value: 0, label: "Beginner" },
-										{ value: 1, label: "Easy" },
-										{ value: 2, label: "Medium" },
-										{ value: 3, label: "Hard" },
-										{ value: 4, label: "Expert" },
-									]}
-									transition="scale-y"
-									transitionDuration={120}
-									transitionTimingFunction="ease"
-									required
-								/>
-							)}
-							<Button
-								type="submit"
-								variant="gradient"
-								gradient={{ from: "indigo", to: "cyan" }}
-							>
-								{gameType === "public" ? "Find match" : "Create room"}
-							</Button>
+							<Group position="center" style={{ width: "100%" }}>
+								{opponent !== "computer" && (
+									<Select
+										placeholder="Time Control"
+										value={timeControl}
+										onChange={setTimeControl}
+										orientation="vertical"
+										data={[
+											{ label: "1", value: "1+0" },
+											{ label: "1+1", value: "1+1" },
+											{ label: "3", value: "3+0" },
+											{ label: "3+2", value: "3+2" },
+											{ label: "5", value: "5+0" },
+											{ label: "5+5", value: "5+5" },
+											{ label: "10", value: "10+0" },
+											{ label: "15", value: "15+0" },
+											{ label: "15+15", value: "15+15" },
+										]}
+										transition="scale-y"
+										transitionDuration={120}
+										transitionTimingFunction="ease"
+										required
+									/>
+								)}
+								<Button
+									type="submit"
+									variant="gradient"
+									gradient={{ from: "indigo", to: "cyan" }}
+								>
+									{gameType === "public" ? "Find match" : "Create room"}
+								</Button>
+							</Group>
 						</Group>
 					</form>
 				</Group>

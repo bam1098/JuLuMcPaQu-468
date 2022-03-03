@@ -7,11 +7,13 @@ app.use(cors());
 app.use(express.json());
 app.use(require("./routes/auth"));
 app.use("/profile", require("./routes/profile"));
+app.use("/game", require("./routes/game"));
 // get driver connection
 const connectDB = require("./db/conn");
 const errorHandler = require("./middleware/error");
 const crypto = require("crypto");
 const axios = require("axios");
+const mongoose = require("mongoose");
 
 connectDB();
 
@@ -29,18 +31,31 @@ http.listen(port, () => {
 });
 
 let games = {};
-let searchingPlayers = [];
+let searchingPlayers = {
+	"1+0": [],
+	"1+1": [],
+	"3+0": [],
+	"3+2": [],
+	"5+0": [],
+	"5+5": [],
+	"10+0": [],
+	"15+0": [],
+	"15+15": [],
+};
 io.on("connection", (socket) => {
 	console.log("New user connected");
 	socket.on("createRoom", (settings) => {
 		if (settings.gameType === "public") {
-			if (searchingPlayers.length === 0) {
-				searchingPlayers.push({ username: settings.username, socket });
+			if (searchingPlayers[settings.timeControl].length === 0) {
+				searchingPlayers[settings.timeControl].push({
+					username: settings.username,
+					socket,
+				});
 				socket.emit("findingOpponent");
 			} else {
 				const roomId = crypto.randomBytes(5).toString("hex");
 				socket.join(roomId);
-				const secondPlayer = searchingPlayers.pop();
+				const secondPlayer = searchingPlayers[settings.timeControl].pop();
 				secondPlayer.socket.join(roomId);
 				games[roomId] = {
 					players: {},
@@ -164,6 +179,115 @@ io.on("connection", (socket) => {
 		games[move.roomId].turn += 1;
 	});
 
+	socket.on("saveGame", async (roomId, result) => {
+		const config = {
+			header: {
+				"Content-Type": "application/json",
+			},
+		};
+		const payload = {
+			turns: Math.round(games[roomId].turn / 2),
+		};
+		const playerOneReq = JSON.stringify({
+			username: result.playerOne.name,
+			fields: "_id username",
+		});
+		const playerTwoReq = JSON.stringify({
+			username: result.playerTwo.name,
+			fields: "_id username",
+		});
+		try {
+			const playerOne = await axios({
+				method: "get",
+				url: "http://localhost:5000/user/get",
+				headers: config.header,
+				data: playerOneReq,
+			});
+			const playerTwo = await axios({
+				method: "get",
+				url: "http://localhost:5000/user/get",
+				headers: config.header,
+				data: playerTwoReq,
+			});
+			if (result.playerOne.color === "white") {
+				payload.playerWhite = {
+					_id: mongoose.Types.ObjectId(playerOne.data.user._id),
+					username: playerOne.data.user.username,
+				};
+				payload.playerBlack = {
+					_id: mongoose.Types.ObjectId(playerTwo.data.user._id),
+					username: playerTwo.data.user.username,
+				};
+			} else {
+				payload.playerWhite = {
+					_id: mongoose.Types.ObjectId(playerTwo.data.user._id),
+					username: playerTwo.data.user.username,
+				};
+				payload.playerBlack = {
+					_id: mongoose.Types.ObjectId(playerOne.data.user._id),
+					username: playerOne.data.user.username,
+				};
+			}
+			if (result.winner === playerOne.data.user.username) {
+				payload.winner = {
+					_id: mongoose.Types.ObjectId(playerOne.data.user._id),
+					username: playerOne.data.user.username,
+				};
+			} else {
+				payload.winner = {
+					_id: mongoose.Types.ObjectId(playerTwo.data.user._id),
+					username: playerTwo.data.user.username,
+				};
+			}
+
+			if (result.draw) {
+				payload.draw = true;
+			}
+			payload.history = result.history;
+			payload.date = new Date();
+			const savedGame = await axios.post(
+				"http://localhost:5000/game/save",
+				{
+					...payload,
+				},
+				config
+			);
+			await axios.post(
+				"http://localhost:5000/user/edit",
+				{
+					username: result.playerOne.name,
+					toEdit: {
+						$push: {
+							matchHistory: {
+								$each: [savedGame.data._id],
+								$position: 0,
+							},
+						},
+					},
+				},
+				config
+			);
+			await axios.post(
+				"http://localhost:5000/user/edit",
+				{
+					username: result.playerTwo.name,
+					toEdit: {
+						$push: {
+							matchHistory: {
+								$each: [savedGame.data._id],
+								$position: 0,
+							},
+						},
+					},
+				},
+				config
+			);
+		} catch (err) {
+			console.error(err);
+		}
+		delete games[roomId];
+	});
+
 	socket.on("gameOver", async (result) => {
 		const config = {
 			header: {
@@ -181,7 +305,13 @@ io.on("connection", (socket) => {
 				try {
 					await axios.post(
 						"http://localhost:5000/user/edit",
-						{ username: human, toEdit: { $inc: { draws: 1 } } },
+						{
+							username: human,
+							toEdit: {
+								$inc: { draws: 1 },
+								$push: { matchHistory: result.history },
+							},
+						},
 						config
 					);
 				} catch (err) {
@@ -250,7 +380,7 @@ io.on("connection", (socket) => {
 			}
 		}
 		io.to(result.roomId).emit("endGame", result);
-		delete games[result.roomId];
+		socket.emit("saveGame", result);
 		io.in(result.roomId).socketsLeave(result.roomId);
 	});
 
@@ -325,11 +455,11 @@ io.on("connection", (socket) => {
 		io.in(data.roomId).emit("refreshGame");
 	});
 
-	socket.on("cancelSearch", (username) => {
-		const removeIndex = searchingPlayers.findIndex(
-			(player) => player[username]
+	socket.on("cancelSearch", (query) => {
+		const removeIndex = searchingPlayers[query.timeControl].findIndex(
+			(player) => player[query.username]
 		);
-		searchingPlayers.splice(removeIndex, 1);
+		searchingPlayers[query.timeControl].splice(removeIndex, 1);
 	});
 
 	socket.on("disconnect", () => {

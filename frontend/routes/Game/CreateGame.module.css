@@ -13,3 +13,7 @@
 .card_container form {
 	margin-top: 1rem;
 }
+
+.card_container form input {
+	padding-right: 0;
+}
