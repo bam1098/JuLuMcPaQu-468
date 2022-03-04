@@ -14,7 +14,7 @@ If you do not have yarn installed, run:
 
 Alternatively, you can use Docker to run the app. Download it [here](https://docs.docker.com/get-docker/).
 
-## Run Locally
+## Project setup
 
 Clone the project
 
@@ -38,6 +38,8 @@ Add the configuration file to backend/config.env (supplied or create your own):
   JWT_EXPIRE=YOUR_EXPIRE_TIME
 ```
 
+## Run Locally
+
 Start the frontend server
 
 ```bash
@@ -54,7 +56,7 @@ In a new terminal window, start the backend server
   node server.js
 ```
 
-Alternatively: Run through Docker!
+## Run with Docker
 
 ```bash
   docker-compose build
