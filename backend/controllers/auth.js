@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const User = require("../Models/User");
 const ErrorResponse = require("../utils/errorResponse");
 
 exports.signup = async (req, res, next) => {

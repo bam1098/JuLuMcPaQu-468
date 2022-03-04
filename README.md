@@ -26,12 +26,6 @@ Go to the project directory
   cd JuLuMcPaQu-468
 ```
 
-Install dependencies
-
-```bash
-  yarn install
-```
-
 Add the configuration file to backend/config.env (supplied or create your own):
 
 ```bash
@@ -45,6 +39,8 @@ Add the configuration file to backend/config.env (supplied or create your own):
 Start the frontend server
 
 ```bash
+  cd frontend/
+  yarn install
   yarn dev
 ```
 
@@ -52,6 +48,7 @@ In a new terminal window, start the backend server
 
 ```bash
   cd backend/
+  yarn install
   node server.js
 ```
 
