@@ -58,9 +58,12 @@ In a new terminal window, start the backend server
 
 ## Run with Docker
 
+In the root directory:
+
 ```bash
-  docker-compose build
-  docker-compose up
+  docker-compose up --build
 ```
+
+## View the application
 
 Navigate to `http://localhost:3000/` in your browser of choice
