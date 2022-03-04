@@ -12,6 +12,8 @@ If you do not have yarn installed, run:
   npm install --global yarn
 ```
 
+Alternatively, you can use Docker to run the app. Download it [here](https://docs.docker.com/get-docker/).
+
 ## Run Locally
 
 Clone the project
