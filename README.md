@@ -52,4 +52,11 @@ In a new terminal window, start the backend server
   node server.js
 ```
 
+Alternatively: Run through Docker!
+
+```bash
+  docker-compose build
+  docker-compose up
+```
+
 Navigate to `http://localhost:3000/` in your browser of choice
