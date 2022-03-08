@@ -12,7 +12,9 @@ If you do not have yarn installed, run:
   npm install --global yarn
 ```
 
-## Run Locally
+Alternatively, you can use Docker to run the app. Download it [here](https://docs.docker.com/get-docker/).
+
+## Project setup
 
 Clone the project
 
@@ -26,12 +28,6 @@ Go to the project directory
   cd JuLuMcPaQu-468
 ```
 
-Install dependencies
-
-```bash
-  yarn install
-```
-
 Add the configuration file to backend/config.env (supplied or create your own):
 
 ```bash
@@ -42,9 +38,13 @@ Add the configuration file to backend/config.env (supplied or create your own):
   JWT_EXPIRE=YOUR_EXPIRE_TIME
 ```
 
+## Run Locally
+
 Start the frontend server
 
 ```bash
+  cd frontend/
+  yarn install
   yarn dev
 ```
 
@@ -52,7 +52,18 @@ In a new terminal window, start the backend server
 
 ```bash
   cd backend/
+  yarn install
   node server.js
 ```
+
+## Run with Docker
+
+In the root directory:
+
+```bash
+  docker-compose up --build
+```
+
+## View the application
 
 Navigate to `http://localhost:3000/` in your browser of choice

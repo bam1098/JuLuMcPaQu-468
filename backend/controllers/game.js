@@ -1,4 +1,4 @@
-const Game = require("../models/Game");
+const Game = require("../Models/Game");
 const ErrorResponse = require("../utils/errorResponse");
 
 exports.save = async (req, res, next) => {
