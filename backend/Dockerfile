@@ -1,14 +1,39 @@
-FROM node:14-slim
+# Install the app dependencies in a full Node docker image
+FROM node:12
 
-WORKDIR /usr/src/app
+WORKDIR "/app"
 
-COPY ./package.json ./
-COPY ./yarn.lock ./
+# Install OS updates
+RUN apt-get update \
+ && apt-get dist-upgrade -y \
+ && apt-get clean \
+ && echo 'Finished installing dependencies'
 
-RUN yarn
+# Copy package.json and package-lock.json
+COPY package*.json ./
+COPY yarn*.lock ./
 
-COPY . .
+# Install app dependencies
+RUN yarn install
+
+# Copy the dependencies into a Slim Node docker image
+FROM node:12-slim
+
+WORKDIR "/app"
+
+# Install OS updates
+RUN apt-get update \
+ && apt-get dist-upgrade -y \
+ && apt-get clean \
+ && echo 'Finished installing dependencies'
+
+# Install app dependencies
+COPY --from=0 /app/node_modules /app/node_modules
+COPY . /app
+
+ENV NODE_ENV production
+ENV PORT 5000
+
 
 EXPOSE 5000
-
-CMD [ "yarn", "start" ]
+CMD ["yarn", "start"]
