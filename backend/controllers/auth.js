@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const User = require("../Models/User");
 const ErrorResponse = require("../utils/errorResponse");
 
 exports.signup = async (req, res, next) => {
@@ -51,6 +51,23 @@ exports.edit = async (req, res, next) => {
 		const user = await User.findOneAndUpdate({ username }, toEdit, {
 			new: true,
 		});
+
+		res.status(200).json({
+			success: true,
+			user,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+exports.get = async (req, res, next) => {
+	let { username, fields } = req.body;
+	if (fields === undefined) {
+		fields = "";
+	}
+	try {
+		const user = await User.findOne({ username }).select(fields);
 
 		res.status(200).json({
 			success: true,

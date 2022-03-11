@@ -1,10 +1,11 @@
-import Home from "./routes/Home/";
-import Login from "./routes/Login/";
-import Register from "./routes/Signup/";
-import Profile from "./routes/Profile/";
+import Home from "./routes/Home";
+import Login from "./routes/Login";
+import Register from "./routes/Signup";
+import Profile from "./routes/Profile";
 import CreateGame from "./routes/Game/CreateGame";
-import ActiveGame from "./routes/Game/";
-import CreatePuzzleGame from "./routes/Puzzles/";
+import ActiveGame from "./routes/Game";
+import AnalyzeGame from "./routes/Game/AnalyzeGame";
+import CreatePuzzleGame from "./routes/Puzzles";
 
 import { Routes, Route } from "react-router-dom";
 import io from "socket.io-client";
@@ -35,6 +36,7 @@ export default function App() {
 					path="/puzzles/start"
 					element={<CreatePuzzleGame socket={socket} />}
 				/>
+				<Route path="/:username/analyze/:gameId" element={<AnalyzeGame />} />
 			</Routes>
 		</>
 	);

@@ -39,6 +39,8 @@ export default function ActiveGame({ socket }) {
 	const [drawOfferSent, setDrawOfferSent] = useState(false);
 	const [drawOfferReceived, setDrawOfferReceived] = useState(false);
 	const [chessboardSize, setChessboardSize] = useState(undefined);
+	const [moveSquares, setMoveSquares] = useState({});
+	const [checkSquare, setCheckSquare] = useState({});
 
 	if (!localStorage.getItem("authToken")) {
 		navigate("/signup");
@@ -51,6 +53,8 @@ export default function ActiveGame({ socket }) {
 	const chatViewport = useRef();
 	const historyViewport = useRef();
 	const containerRef = useRef();
+	const gameRef = useRef(game);
+	const gameStateRef = useRef(gameState);
 	const scrollToBottom = () =>
 		chatViewport.current.scrollTo({
 			top: chatViewport.current.scrollHeight,
@@ -61,6 +65,11 @@ export default function ActiveGame({ socket }) {
 			top: historyViewport.current.scrollHeight,
 			behavior: "smooth",
 		});
+
+	useEffect(() => {
+		gameRef.current = game;
+		gameStateRef.current = gameState;
+	});
 
 	useEffect(() => {
 		function handleResize() {
@@ -94,6 +103,25 @@ export default function ActiveGame({ socket }) {
 			setGameEnded(true);
 			setModalOpened(true);
 			setEndResult(result);
+		});
+
+		socket.on("saveGame", (result) => {
+			if (result.playerOne !== "Computer" && result.playerTwo !== "Computer") {
+				socket.emit("saveGame", params.id, {
+					history: gameRef.current.pgn(),
+					playerOne: {
+						name: result.playerOne,
+						color: result.game.players[result.playerOne].color,
+					},
+					playerTwo: {
+						name: result.playerTwo,
+						color: result.game.players[result.playerTwo].color,
+					},
+					winner: result?.winner,
+					draw: result.draw,
+					date: new Date().toString().split(" ").splice(1, 3).join(" "),
+				});
+			}
 		});
 
 		socket.on("receiveMessage", (chatMessage) => {
@@ -163,8 +191,8 @@ export default function ActiveGame({ socket }) {
 		const roomId = params.id;
 		if (drawOfferReceived) {
 			socket.emit("gameOver", {
-				game: gameState,
 				roomId,
+				game: gameState,
 				draw: true,
 				playerOne: user.username,
 				playerTwo: opponent,
@@ -197,8 +225,10 @@ export default function ActiveGame({ socket }) {
 	const resign = () => {
 		const roomId = params.id;
 		socket.emit("gameOver", {
-			game: gameState,
 			roomId,
+			game: gameState,
+			playerOne: user.username,
+			playerTwo: opponent,
 			draw: false,
 			winner: opponent,
 			loser: user.username,
@@ -345,6 +375,10 @@ export default function ActiveGame({ socket }) {
 							opponent={opponent}
 							setOpponent={setOpponent}
 							boardWidth={chessboardSize}
+							moveSquares={moveSquares}
+							setMoveSquares={setMoveSquares}
+							checkSquare={checkSquare}
+							setCheckSquare={setCheckSquare}
 						/>
 					</div>
 					<Card className="chat-card">
@@ -360,13 +394,22 @@ export default function ActiveGame({ socket }) {
 						</ScrollArea>
 						<Divider />
 						<Group noWrap>
-							<Button variant="subtle" onClick={() => setFen(fenHistory[0])}>
+							<Button
+								variant="subtle"
+								onClick={() => {
+									setFen(fenHistory[0]);
+									setMoveSquares({});
+									setCheckSquare({});
+								}}
+							>
 								<IoPlayBack />
 							</Button>
 							<Button
 								variant="subtle"
 								onClick={() => {
 									if (fenHistory.indexOf(fen) !== 0) {
+										setMoveSquares({});
+										setCheckSquare({});
 										setFen(fenHistory[fenHistory.indexOf(fen) - 1]);
 									}
 								}}
@@ -377,6 +420,8 @@ export default function ActiveGame({ socket }) {
 								variant="subtle"
 								onClick={() => {
 									if (fenHistory.indexOf(fen) !== fenHistory.length - 1) {
+										setMoveSquares({});
+										setCheckSquare({});
 										setFen(fenHistory[fenHistory.indexOf(fen) + 1]);
 									}
 								}}
@@ -385,7 +430,11 @@ export default function ActiveGame({ socket }) {
 							</Button>
 							<Button
 								variant="subtle"
-								onClick={() => setFen(fenHistory[fenHistory.length - 1])}
+								onClick={() => {
+									setFen(fenHistory[fenHistory.length - 1]);
+									setMoveSquares({});
+									setCheckSquare({});
+								}}
 							>
 								<IoPlayForward />
 							</Button>
