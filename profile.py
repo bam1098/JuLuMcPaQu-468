@@ -30,4 +30,7 @@ node.routable_control_ip = "true"
 node.addService(pg.Execute(
     shell="sh", command="sudo bash /local/repository/install_docker.sh"))
 
+node.addService(pg.Execute(
+    shell="sh", command="git clone https://github.com/bam1098/JuLuMcPaQu-468.git"))
+
 pc.printRequestRSpec(request)
