@@ -1,38 +1,21 @@
 version: "3"
 services:
-  react-app:
-    image: react-client
-    stdin_open: true
+  frontend:
+    build: ./frontend
     ports:
-      - "3000:3000"
-    networks:
-      - mern-app
-    volumes:
-      - ./frontend/:/usr/src/app
-      - /usr/src/app/node_modules
-  api-server:
-    image: node-server
-    env_file: ./backend/config.env
+      - 3000:80
+    links:
+      - backend
+  backend:
+    build: ./backend
     ports:
-      - "5000:5000"
-    networks:
-      - mern-app
-    volumes:
-      - ./backend/:/usr/src/app
-      - /usr/src/app/node_modules
-    depends_on:
+      - 5000:5000
+    environment:
+      - MONGO_URL=mongo
+    links:
       - mongo
   mongo:
-    image: mongo:4.4-bionic
+    image: mongo
+    restart: always
     ports:
-      - "27017:27017"
-    networks:
-      - mern-app
-    volumes:
-      - mongo-data:/data/db
-networks:
-  mern-app:
-    driver: bridge
-volumes:
-  mongo-data:
-    driver: local
+      - 27017:27017
