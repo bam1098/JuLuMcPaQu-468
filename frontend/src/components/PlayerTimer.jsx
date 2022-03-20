@@ -10,6 +10,9 @@ export default function PlayerTimer({
 	increment,
 	setOutOfTime,
 	pauseAtStart,
+	socket,
+	roomId,
+	gameEnded,
 }) {
 	if (expiryTimestamp === null) {
 		return "";
@@ -19,6 +22,9 @@ export default function PlayerTimer({
 		timerType: "DECREMENTAL",
 		autostart: true,
 		endTime: 0,
+		onTimeUpdate: () => {
+			socket.emit("updateTime", { roomId, time });
+		},
 		onTimeOver: () => {
 			setOutOfTime(0);
 		},
@@ -38,6 +44,10 @@ export default function PlayerTimer({
 	useEffect(() => {
 		pause();
 	}, [pauseAtStart]);
+
+	useEffect(() => {
+		pause();
+	}, [gameEnded]);
 
 	useEffect(() => {
 		start();

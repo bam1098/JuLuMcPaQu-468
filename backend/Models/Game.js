@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const GameSchema = new mongoose.Schema(
 	{
+		timeControl: {
+			type: String,
+			required: [true, "Time control not supplied"],
+		},
 		playerWhite: {
 			_id: {
 				type: mongoose.Schema.Types.ObjectId,

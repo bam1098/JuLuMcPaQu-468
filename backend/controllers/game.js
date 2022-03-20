@@ -2,10 +2,19 @@ const Game = require("../Models/Game");
 const ErrorResponse = require("../utils/errorResponse");
 
 exports.save = async (req, res, next) => {
-	const { playerWhite, playerBlack, winner, draw, date, turns, history } =
-		req.body;
+	const {
+		playerWhite,
+		playerBlack,
+		winner,
+		draw,
+		date,
+		timeControl,
+		turns,
+		history,
+	} = req.body;
 	try {
 		const game = await Game.create({
+			timeControl,
 			playerWhite,
 			playerBlack,
 			winner,
