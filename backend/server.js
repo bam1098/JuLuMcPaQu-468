@@ -179,6 +179,12 @@ io.on("connection", (socket) => {
 		games[move.roomId].turn += 1;
 	});
 
+	socket.on("updateTime", (payload) => {
+		socket.broadcast
+			.to(payload.roomId)
+			.emit("updateOpponentTime", { seconds: payload.time });
+	});
+
 	socket.on("saveGame", async (roomId, result) => {
 		const config = {
 			header: {
@@ -245,6 +251,7 @@ io.on("connection", (socket) => {
 			}
 			payload.history = result.history;
 			payload.date = new Date();
+			payload.timeControl = result.timeControl;
 			const savedGame = await axios.post(
 				"http://localhost:5000/game/save",
 				{

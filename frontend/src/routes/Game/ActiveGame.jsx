@@ -120,6 +120,7 @@ export default function ActiveGame({ socket }) {
 					winner: result?.winner,
 					draw: result.draw,
 					date: new Date().toString().split(" ").splice(1, 3).join(" "),
+					timeControl: result.game.timeControl,
 				});
 			}
 		});
@@ -379,6 +380,7 @@ export default function ActiveGame({ socket }) {
 							setMoveSquares={setMoveSquares}
 							checkSquare={checkSquare}
 							setCheckSquare={setCheckSquare}
+							gameEnded={gameEnded}
 						/>
 					</div>
 					<Card className="chat-card">

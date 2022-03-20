@@ -43,7 +43,6 @@ export default function Login() {
 			// navigate("/");
 			window.location = "/";
 		} catch (error) {
-			console.log(error.response);
 			setError(error.response.data.error);
 			setTimeout(() => {
 				setError("");

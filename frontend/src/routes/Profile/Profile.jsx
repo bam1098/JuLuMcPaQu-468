@@ -94,7 +94,7 @@ export default function Profile() {
 				onClick={() => navigate(`/${user?.username}/analyze/${match._id}`)}
 				style={{ cursor: "pointer" }}
 			>
-				<td>TODO</td>
+				<td>{match.timeControl ? match.timeControl : "N/A"}</td>
 				<td>
 					<Group direction="column" spacing={0}>
 						<Group>

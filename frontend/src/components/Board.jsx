@@ -8,6 +8,7 @@ import moveAudioFile from "../assets/sounds/Move.mp3";
 import captureAudioFile from "../assets/sounds/Capture.mp3";
 import gameStartAudioFile from "../assets/sounds/GameStart.mp3";
 import PlayerTimer from "./PlayerTimer";
+import OpponentTimer from "./OpponentTimer";
 
 export default function Board({
 	game,
@@ -27,14 +28,17 @@ export default function Board({
 	setMoveSquares,
 	checkSquare,
 	setCheckSquare,
+	gameEnded,
 }) {
 	const [boardOrientation, setBoardOrientation] = useState("white");
 	const [rightClickedSquares, setRightClickedSquares] = useState({});
 	const [optionSquares, setOptionSquares] = useState({});
+	const [timeControl, setTimeControl] = useState("");
 	const [expiryTimestamp, setExpiryTimestamp] = useState(null);
 	const [increment, setIncrement] = useState(0);
 	const [playerStartTurn, setPlayerStartTurn] = useState(0);
 	const [opponentStartTurn, setOpponentStartTurn] = useState(0);
+	const [opponentTime, setOpponentTime] = useState(null);
 	const [playerEndTurn, setPlayerEndTurn] = useState(0);
 	const [opponentEndTurn, setOpponentEndTurn] = useState(0);
 	const [playerPauseAtStart, setPlayerPauseAtStart] = useState(false);
@@ -117,6 +121,7 @@ export default function Board({
 		) {
 			payload = {
 				roomId,
+				timeControl,
 				game: gameState,
 				draw: true,
 				playerOne: user.username,
@@ -142,6 +147,7 @@ export default function Board({
 			}
 			payload = {
 				roomId,
+				timeControl,
 				game: gameState,
 				draw: false,
 				playerOne: user.username,
@@ -283,6 +289,7 @@ export default function Board({
 			setBoardOrientation(gameState.players[user["username"]].color);
 			if (opponent !== "Computer") {
 				const time = gameState.timeControl.split("+")[0];
+				setTimeControl(gameState.timeControl);
 				setIncrement(parseInt(gameState.timeControl.split("+")[1]));
 				setExpiryTimestamp(parseInt(time) * 60);
 				if (gameState.players[user.username].color.charAt(0) !== game.turn()) {
@@ -336,6 +343,10 @@ export default function Board({
 			setFenHistory((previousFens) => [...previousFens, game.fen()]);
 		});
 
+		socket.on("updateOpponentTime", (time) => {
+			setOpponentTime((oldTime) => time.seconds);
+		});
+
 		return () => socket.off();
 	}, []);
 
@@ -343,6 +354,7 @@ export default function Board({
 		if (outOfTime === 0) {
 			const payload = {
 				roomId,
+				timeControl,
 				game: gameState,
 				draw: false,
 				playerOne: user.username,
@@ -371,14 +383,9 @@ export default function Board({
 							{opponent}
 						</Text>
 					</Group>
-					<PlayerTimer
-						expiryTimestamp={expiryTimestamp}
-						startTurn={opponentStartTurn}
-						endTurn={opponentEndTurn}
-						increment={increment}
-						setOutOfTime={() => {}}
-						pauseAtStart={opponentPauseAtStart}
-					/>
+					{opponent !== "Computer" && (
+						<OpponentTimer secondsLeft={opponentTime} />
+					)}
 				</Group>
 			</div>
 			<Chessboard
@@ -414,14 +421,19 @@ export default function Board({
 							{user["username"]}
 						</Text>
 					</Group>
-					<PlayerTimer
-						expiryTimestamp={expiryTimestamp}
-						startTurn={playerStartTurn}
-						endTurn={playerEndTurn}
-						increment={increment}
-						setOutOfTime={setOutOfTime}
-						pauseAtStart={playerPauseAtStart}
-					/>
+					{opponent !== "Computer" && (
+						<PlayerTimer
+							expiryTimestamp={expiryTimestamp}
+							startTurn={playerStartTurn}
+							endTurn={playerEndTurn}
+							increment={increment}
+							setOutOfTime={setOutOfTime}
+							pauseAtStart={playerPauseAtStart}
+							socket={socket}
+							roomId={roomId}
+							gameEnded={gameEnded}
+						/>
+					)}
 				</Group>
 			</div>
 		</>
