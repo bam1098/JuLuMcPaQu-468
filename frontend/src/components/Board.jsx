@@ -29,6 +29,7 @@ export default function Board({
 	checkSquare,
 	setCheckSquare,
 	gameEnded,
+	lessThan992px,
 }) {
 	const [boardOrientation, setBoardOrientation] = useState("white");
 	const [rightClickedSquares, setRightClickedSquares] = useState({});

@@ -271,6 +271,7 @@ export default function NewNav() {
 									position: "fixed",
 									backgroundColor: dark ? "#1A1B1E" : "#F5F6F8",
 									borderBottom: "1px solid #2C2E33",
+									zIndex: 6,
 								}}
 							>
 								<Burger

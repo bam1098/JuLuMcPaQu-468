@@ -11,6 +11,7 @@ import {
 	Text,
 	TextInput,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import {
 	IoPlaySkipForward,
 	IoPlaySkipBack,
@@ -66,6 +67,9 @@ export default function ActiveGame({ socket }) {
 			behavior: "smooth",
 		});
 
+	const lessThan992px = useMediaQuery("(max-width: 992px)");
+	const lessThan576px = useMediaQuery("(max-width: 576px)");
+
 	useEffect(() => {
 		gameRef.current = game;
 		gameStateRef.current = gameState;
@@ -74,9 +78,13 @@ export default function ActiveGame({ socket }) {
 	useEffect(() => {
 		function handleResize() {
 			const display = containerRef.current;
-			setChessboardSize(
-				Math.min(display.offsetWidth - 100, display.offsetHeight - 100)
-			);
+			if (lessThan992px) {
+				setChessboardSize(Math.min(display.offsetWidth, display.offsetHeight));
+			} else {
+				setChessboardSize(
+					Math.min(display.offsetWidth - 100, display.offsetHeight - 100)
+				);
+			}
 		}
 		window.addEventListener("resize", handleResize);
 		handleResize();
@@ -339,7 +347,11 @@ export default function ActiveGame({ socket }) {
 			>
 				<div
 					className="parent-container"
-					style={{ width: "100%", height: "calc(100vh - 32px)" }}
+					style={{
+						width: "100%",
+						flexDirection: lessThan992px ? "column" : "row",
+						height: lessThan992px ? "inherit" : "calc(100vh - 32px)",
+					}}
 				>
 					<EndGameModal
 						gameState={gameState}
@@ -359,7 +371,14 @@ export default function ActiveGame({ socket }) {
 					/>
 					<div
 						className="board-container"
-						style={{ maxWidth: "940px" }}
+						style={{
+							maxWidth: "940px",
+							height: lessThan576px
+								? "70vh"
+								: lessThan992px
+								? "100vh"
+								: "inherit",
+						}}
 						ref={containerRef}
 					>
 						<Board
@@ -381,9 +400,16 @@ export default function ActiveGame({ socket }) {
 							checkSquare={checkSquare}
 							setCheckSquare={setCheckSquare}
 							gameEnded={gameEnded}
+							lessThan992px={lessThan992px}
 						/>
 					</div>
-					<Card className="chat-card">
+					<Card
+						className="chat-card"
+						style={{
+							maxWidth: lessThan992px ? "75%" : "300px",
+							width: lessThan992px ? "75%" : "300px",
+						}}
+					>
 						<Text style={{ fontSize: "1.5em", fontWeight: "bold" }}>
 							History
 						</Text>
@@ -395,7 +421,7 @@ export default function ActiveGame({ socket }) {
 							{renderHistory()}
 						</ScrollArea>
 						<Divider />
-						<Group noWrap>
+						<Group noWrap position="center">
 							<Button
 								variant="subtle"
 								onClick={() => {
