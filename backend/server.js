@@ -68,6 +68,7 @@ io.on("connection", (socket) => {
 				games[roomId].players[settings.username] = {
 					id: socket.id,
 					color: Math.random() > 0.5 ? "white" : "black",
+					timeLeft: parseInt(settings.timeControl) * 60,
 				};
 				games[roomId].players[secondPlayer.username] = {
 					id: secondPlayer.socket.id,
@@ -75,6 +76,7 @@ io.on("connection", (socket) => {
 						games[roomId].players[settings.username].color === "white"
 							? "black"
 							: "white",
+					timeLeft: parseInt(settings.timeControl) * 60,
 				};
 				socket.emit("roomId", roomId);
 				secondPlayer.socket.emit("roomId", roomId);
@@ -98,6 +100,7 @@ io.on("connection", (socket) => {
 							? "white"
 							: "black"
 						: settings.color,
+				timeLeft: parseInt(settings.timeControl) * 60,
 			};
 
 			if (settings.opponent === "computer") {
@@ -161,6 +164,7 @@ io.on("connection", (socket) => {
 			games[newUser.roomId].players[newUser.username] = {
 				id: socket.id,
 				color: color,
+				timeLeft: 60,
 			};
 		}
 		socket.join(newUser.roomId);
@@ -180,6 +184,7 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("updateTime", (payload) => {
+		games[payload.roomId].players[payload.player].timeLeft = payload.time;
 		socket.broadcast
 			.to(payload.roomId)
 			.emit("updateOpponentTime", { seconds: payload.time });
