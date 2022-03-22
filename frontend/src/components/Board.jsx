@@ -277,9 +277,11 @@ export default function Board({
 	useEffect(() => {
 		gameStartAudio.play();
 		socket.on("playerJoined", (gameState) => {
+			let opStorage;
 			setGameState(gameState);
 			for (const [key] of Object.entries(gameState.players)) {
 				if (key !== user["username"]) {
+					opStorage = key;
 					setOpponent(key);
 				}
 			}
@@ -288,10 +290,14 @@ export default function Board({
 			setFenHistory((previousFens) => [...previousFens, game.fen()]);
 			setBoardOrientation(gameState.players[user["username"]].color);
 			if (opponent !== "Computer") {
-				const time = gameState.timeControl.split("+")[0];
 				setTimeControl(gameState.timeControl);
 				setIncrement(parseInt(gameState.timeControl.split("+")[1]));
-				setExpiryTimestamp(parseInt(time) * 60);
+				setExpiryTimestamp(gameState.players[user["username"]].timeLeft);
+				try {
+					setOpponentTime(gameState.players[opStorage].timeLeft);
+				} catch {
+					setOpponentTime(parseInt(gameState.timeControl.split("+")[0]) * 60);
+				}
 				if (gameState.players[user.username].color.charAt(0) !== game.turn()) {
 					setPlayerPauseAtStart(true);
 					setOpponentStartTurn((previousStartTurn) => previousStartTurn + 1);
@@ -432,6 +438,7 @@ export default function Board({
 							socket={socket}
 							roomId={roomId}
 							gameEnded={gameEnded}
+							player={user["username"]}
 						/>
 					)}
 				</Group>

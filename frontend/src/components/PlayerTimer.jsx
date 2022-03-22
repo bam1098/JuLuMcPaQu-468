@@ -13,6 +13,7 @@ export default function PlayerTimer({
 	socket,
 	roomId,
 	gameEnded,
+	player,
 }) {
 	if (expiryTimestamp === null) {
 		return "";
@@ -23,7 +24,7 @@ export default function PlayerTimer({
 		autostart: true,
 		endTime: 0,
 		onTimeUpdate: () => {
-			socket.emit("updateTime", { roomId, time });
+			socket.emit("updateTime", { roomId, time, player });
 		},
 		onTimeOver: () => {
 			setOutOfTime(0);
