@@ -378,6 +378,7 @@ export default function ActiveGame({ socket }) {
 								: lessThan992px
 								? "100vh"
 								: "inherit",
+							width: lessThan992px ? "100%" : "inherit",
 						}}
 						ref={containerRef}
 					>
@@ -400,7 +401,6 @@ export default function ActiveGame({ socket }) {
 							checkSquare={checkSquare}
 							setCheckSquare={setCheckSquare}
 							gameEnded={gameEnded}
-							lessThan992px={lessThan992px}
 						/>
 					</div>
 					<Card
