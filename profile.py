@@ -32,18 +32,18 @@ iface.component_id = "eth1"
 iface.addAddress(pg.IPv4Address(prefixForIP + str(1), "255.255.255.0"))
 link.addInterface(iface)
 
+node.addService(pg.Execute(
+    shell="sh", command="git clone -b kubernetes https://github.com/bam1098/JuLuMcPaQu-468.git"))
+
 # setup Docker
 node.addService(pg.Execute(
-    shell="sh", command="sudo bash /local/repository/install_docker.sh"))
+    shell="sh", command="sudo bash JuLuMcPaQu-468/install_docker.sh"))
 # setup Kubernetes
 node.addService(pg.Execute(
-    shell="sh", command="sudo bash /local/repository/install_kubernetes.sh"))
+    shell="sh", command="sudo bash JuLuMcPaQu-468/install_kubernetes.sh"))
 node.addService(pg.Execute(shell="sh", command="sudo swapoff -a"))
 
 node.addService(pg.Execute(
-    shell="sh", command="sudo bash /local/repository/kube_manager.sh"))
-
-node.addService(pg.Execute(
-    shell="sh", command="git clone https://github.com/bam1098/JuLuMcPaQu-468.git"))
+    shell="sh", command="sudo bash JuLuMcPaQu-468/launch_network.sh"))
 
 pc.printRequestRSpec(request)
