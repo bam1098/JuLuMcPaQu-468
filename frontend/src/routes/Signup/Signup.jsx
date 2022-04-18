@@ -53,7 +53,7 @@ export default function Signup() {
 		<div className="container">
 			<Card className="card" shadow="md" padding="lg">
 				<div className="form-header">
-					<h2>Signup</h2>
+					<h2>Create Account</h2>
 				</div>
 				{error && <div className="error">{error}</div>}
 				<form method="POST" onSubmit={handleSubmit}>
