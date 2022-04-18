@@ -18,7 +18,6 @@ import { useLocalStorageValue, useMediaQuery } from "@mantine/hooks";
 import { Link } from "react-router-dom";
 import { BsChevronRight } from "react-icons/bs";
 import { FaChessQueen } from "react-icons/fa";
-import { IoExtensionPuzzle } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import App from "../../App";
 import jwt_decode from "jwt-decode";
@@ -134,28 +133,6 @@ export default function NewNav() {
 										>
 											<Text component="p" size="xl">
 												Play chess
-											</Text>
-										</MediaQuery>
-									</Group>
-								</UnstyledButton>
-								<UnstyledButton
-									component={Link}
-									to="/puzzles/start"
-									onClick={() => setOpened((o) => !o)}
-								>
-									<Group position="center">
-										<IoExtensionPuzzle
-											color={"#4c9ce2"}
-											className="icon"
-											title="Play puzzles"
-										/>
-										<MediaQuery
-											largerThan="sm"
-											smallerThan="lg"
-											styles={{ display: "none" }}
-										>
-											<Text component="p" size="xl">
-												Play puzzles
 											</Text>
 										</MediaQuery>
 									</Group>

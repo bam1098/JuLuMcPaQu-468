@@ -5,13 +5,12 @@ import Profile from "./routes/Profile";
 import CreateGame from "./routes/Game/CreateGame";
 import ActiveGame from "./routes/Game";
 import AnalyzeGame from "./routes/Game/AnalyzeGame";
-import CreatePuzzleGame from "./routes/Puzzles";
 
 import { Routes, Route } from "react-router-dom";
 import io from "socket.io-client";
 
 const endpoint = "http://localhost:5000";
-const socket = io(endpoint);
+const socket = io(endpoint, { transports: ["websocket"] });
 
 export default function App() {
 	return (
@@ -30,11 +29,6 @@ export default function App() {
 					exact
 					path="/game/:id"
 					element={<ActiveGame socket={socket} />}
-				/>
-				<Route
-					exact
-					path="/puzzles/start"
-					element={<CreatePuzzleGame socket={socket} />}
 				/>
 				<Route path="/:username/analyze/:gameId" element={<AnalyzeGame />} />
 			</Routes>
