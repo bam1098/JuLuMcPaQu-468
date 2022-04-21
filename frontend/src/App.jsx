@@ -18,13 +18,21 @@ export default function App() {
 		<>
 			<Routes>
 				<Route path="*" element={<Error />} />
-				<Route index path="/" element={<Home socket={socket} />} />
-				<Route path="login" element={<Login />} />
-				<Route path="signup" element={<Register />} />
-				<Route path="profile/:username" element={<Profile />} />
-				<Route path="game/create" element={<CreateGame socket={socket} />} />
-				<Route path="game/:id" element={<ActiveGame socket={socket} />} />
-				<Route path=":username/analyze/:gameId" element={<AnalyzeGame />} />
+				<Route exact path="/" element={<Home socket={socket} />} />
+				<Route exact path="/login" element={<Login />} />
+				<Route exact path="/signup" element={<Register />} />
+				<Route exact path="/profile/:username" element={<Profile />} />
+				<Route
+					exact
+					path="/game/create"
+					element={<CreateGame socket={socket} />}
+				/>
+				<Route
+					exact
+					path="/game/:id"
+					element={<ActiveGame socket={socket} />}
+				/>
+				<Route path="/:username/analyze/:gameId" element={<AnalyzeGame />} />
 			</Routes>
 		</>
 	);
