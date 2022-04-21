@@ -164,7 +164,7 @@ io.on("connection", (socket) => {
 			games[newUser.roomId].players[newUser.username] = {
 				id: socket.id,
 				color: color,
-				timeLeft: 60,
+				timeLeft: parseInt(games[newUser.roomId].timeControl.split("+")) * 60,
 			};
 		}
 		socket.join(newUser.roomId);
