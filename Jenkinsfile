@@ -1,12 +1,13 @@
 pipeline {
-	agent none
-	environment {
-		// insert environment variables
+	agent {
+		kubernetes {
+			inheritFrom 'agent-template'
+		}
 	}
 	stages {
 		stage('Build') {
 			steps {
-				echo 'Building...'
+				sh 'docker-compose up --build'
 			}
 		}
 		stage('Test') {
