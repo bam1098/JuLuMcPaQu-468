@@ -11,7 +11,7 @@ pipeline {
         stages {
                 stage('Build') {
                         steps {
-                                git 'https://github.com/bam1098/JuLuMcPaQu-468'
+                                echo 'Building...'
                         }
                 }
                 stage('Test') {
