@@ -5,7 +5,7 @@ function Home() {
 	return (
 		<div className="App">
 			<Text component="h1" size={20}>
-				Chess Game
+				Chess Game Updated
 			</Text>
 			<Text>
 				Edit this page at: <code>frontend/routes/Home/Home.jsx</code>
