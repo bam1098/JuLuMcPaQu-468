@@ -1,23 +1,22 @@
 pipeline {
-        agent any
-        environment {
-                CI = 'true'
-        }
-        stages {
-                stage('Build') {
-                        steps {
-                                echo 'Building...'
-                        }
-                }
-                stage('Test') {
-                        steps {
-                                echo 'Testing...'
-                        }
-                }
-                stage('Deploy') {
-                        steps {
-                                sh 'sudo docker-compose up --build'
-                        }
-                }
-        }
+	agent any
+	stages {
+		stage('Build') {
+				steps {
+						echo '-- Building containers --'
+						sh 'sudo docker-compose build'
+				}
+		}
+		stage('Test') {
+				steps {
+						echo 'Testing...'
+				}
+		}
+		stage('Deploy') {
+				steps {
+						echo '-- Deploying containers --'
+						sh 'sudo docker-compose up'
+				}
+		}
+	}
 }
