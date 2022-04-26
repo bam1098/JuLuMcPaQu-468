@@ -9,7 +9,7 @@ pipeline {
 		stage('Build') {
 			steps {
 					echo '-- Building containers --'
-					sh 'sudo docker-compose build'
+					sh 'docker-compose build'
 			}
 		}
 		stage('Test') {
@@ -20,7 +20,7 @@ pipeline {
 		stage('Deploy') {
 			steps {
 					echo '-- Deploying containers --'
-					sh 'sudo docker-compose up'
+					sh 'docker-compose up'
 			}
 		}
 	}
