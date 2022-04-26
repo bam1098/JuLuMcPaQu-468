@@ -8,6 +8,7 @@ pipeline {
     stages {
 		stage('Build') {
 			steps {
+					bash 'install_docker.sh'
 					echo '-- Building containers --'
 					sh 'docker-compose build'
 			}

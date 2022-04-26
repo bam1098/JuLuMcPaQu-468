@@ -33,7 +33,7 @@ iface.addAddress(pg.IPv4Address(prefixForIP + str(1), "255.255.255.0"))
 link.addInterface(iface)
 
 node.addService(pg.Execute(
-    shell="sh", command="git clone -b kubernetes https://github.com/bam1098/JuLuMcPaQu-468.git"))
+    shell="sh", command="git clone https://github.com/bam1098/JuLuMcPaQu-468.git"))
 
 # setup Docker
 node.addService(pg.Execute(
